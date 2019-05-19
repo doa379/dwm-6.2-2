@@ -1,3 +1,10 @@
+dwm-6.2 with systray patch, plus other enhancements. 
+This project anticipates being close to vanilla-dwm as much as possible. 
+The only elaborate patch is the systray patch taken from the suckless website.
+The other enhancements are a series of tiny improvements, and are largely to the functionality and usability of dwm. Vanilla-dwm is too rigid in my estimate from a usability standpoint.
+For instance, dwm now sets all clients to floating behaviour by default, with tiling done upon manual and semi-automatic request. You can now have tiling features from a floating client configuration. This allows each tag to preserve its own configuration of clients without having to use any sort of (elaborate) Pertag patch. All these patches are my own. Give it a try and I hope you will see its ease of use and low overhead on patches very conducive to use.
+
+
 dwm - dynamic window manager
 ============================
 dwm is an extremely fast, small, and dynamic window manager for X.
