@@ -2667,6 +2667,9 @@ static void zoomfloat(const Arg *arg)
 
 static void view_nonempty(const Arg *arg)
 {
+  if(selmon->stack == NULL)
+    return;
+
   shiftview0(arg);
 
   if (!ISVISIBLE(selmon->stack))
