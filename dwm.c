@@ -438,7 +438,9 @@ arrange(Monitor *m)
 	 showhide(m->stack);
   if (m) {
     arrangemon(m);
+/* Customisation
     restack(m);
+*/
   } else for (m = mons; m; m = m->next)
 	   arrangemon(m);
 }
@@ -1548,8 +1550,10 @@ restack(Monitor *m)
   drawbar(m);
   if (!m->sel)
     return;
+
   if (m->sel->isfloating || !m->lt[m->sellt]->arrange)
     XRaiseWindow(dpy, m->sel->win);
+
   if (m->lt[m->sellt]->arrange) {
     wc.stack_mode = Below;
     wc.sibling = m->barwin;

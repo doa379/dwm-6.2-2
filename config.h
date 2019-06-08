@@ -75,6 +75,8 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 NULL };
 static const char *termcmd[]  = { "tabbed", "-c", "xterm", "-into", NULL };
 static const char *urxvtcmd[] = { "tabbed", "-c", "urxvt", "-embed", NULL };
+static const char *urxvt0cmd[] = { "urxvt", "-fn", "xft:Monospace:size=8", "-fg", "white", "-bg", "black", NULL };
+static const char *urxvt1cmd[] = { "urxvt", NULL };
 static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
 static const char *lockscmd[] = { "slock", NULL };
 static const char *brightnessupcmd[] = { "backlight", "+", NULL };
@@ -82,14 +84,14 @@ static const char *brightnessdncmd[] = { "backlight", "-", NULL };
 static const char *audioupcmd[] = { "vol", "+", NULL };
 static const char *audiodncmd[] = { "vol", "-", NULL };
 static const char *audiomutecmd[] = { "vol", "0", NULL };
-static const char *displaycmd[] = { "display", NULL };
+static const char *displaycmd[] = { "extdisplay", NULL };
 static const char *suspendcmd[] = { "powerstate", "M", NULL };
 static const char *hibernatecmd[] = { "powerstate", "D", NULL };
 
 static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-  { MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+  { MODKEY|ShiftMask,             XK_Return, spawn,          {.v = urxvt0cmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
   { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -114,18 +116,18 @@ static Key keys[] = {
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
   { MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-  TAGKEYS(                        XK_F1,                     0)
-  TAGKEYS(                        XK_F2,                     1)
-  TAGKEYS(                        XK_F3,                     2)
-  TAGKEYS(                        XK_F4,                     3)
-  TAGKEYS(                        XK_F5,                     4)
-  TAGKEYS(                        XK_F6,                     5)
-  TAGKEYS(                        XK_F7,                     6)
-  TAGKEYS(                        XK_F8,                     7)
-  TAGKEYS(                        XK_F9,                     8)
-  TAGKEYS(                        XK_F10,                    9)
-  TAGKEYS(                        XK_F11,                    10)
-  TAGKEYS(                        XK_F12,                    11)
+  TAGKEYS(                        XK_1,                      0)
+  TAGKEYS(                        XK_2,                      1)
+  TAGKEYS(                        XK_3,                      2)
+  TAGKEYS(                        XK_4,                      3)
+  TAGKEYS(                        XK_5,                      4)
+  TAGKEYS(                        XK_6,                      5)
+  TAGKEYS(                        XK_7,                      6)
+  TAGKEYS(                        XK_8,                      7)
+  TAGKEYS(                        XK_9,                      8)
+  TAGKEYS(                        XK_0,                      9)
+  TAGKEYS(                        XK_minus,                  10)
+  TAGKEYS(                        XK_equal,                  11)
   { MODKEY|ShiftMask,             XK_q,      quit,           {0} },
   { MODKEY|ShiftMask,             XK_k,      setkblayout,    {0} },
   { MODKEY,                       XK_Left,   shiftview,      {.i = -1 } },
@@ -134,7 +136,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Up,     shiftview,	     {.i = +1 } },
   { MODKEY|ShiftMask,             XK_l,                      spawn, {.v = lockscmd}},
   { MODKEY|ShiftMask,             XK_s,                      spawn, {.v = scrotcmd}},
-  { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = urxvtcmd}},
+  { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = urxvt1cmd}},
   { 0,                            XF86XK_AudioRaiseVolume,   spawn, {.v = audioupcmd}},
   { 0,                            XF86XK_AudioLowerVolume,   spawn, {.v = audiodncmd}},
   { 0,                            XF86XK_AudioMute,          spawn, {.v = audiomutecmd}},
