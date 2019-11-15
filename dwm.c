@@ -136,7 +136,7 @@ struct Monitor {
   int mx, my, mw, mh;   /* screen size */
   int wx, wy, ww, wh;   /* window area  */
   unsigned int seltags;
-  unsigned int sellt;
+  unsigned int sellt, next_sellt;
   unsigned int tagset[2];
   int showbar;
   int topbar;
@@ -277,6 +277,8 @@ static void setfloat(void);
 static void zoomcycle(const Arg *); 
 static void zoomfloat(const Arg *);
 static void view_nonempty(const Arg *);
+static void setlayout0(const Arg *);
+static void tcl(Monitor *);
 /* */
 
 /* variables */
@@ -2613,19 +2615,23 @@ static void set_mfact(const Arg *arg)
 
 static void zoomcycle(const Arg *arg) 
 {
-  if(selmon->sel == NULL)
-    return;
   Client *c = NULL, *i;
-  for(i = selmon->sel; i != selmon->sel; i = i->next)
-    if(ISVISIBLE(i))
+  for (i = selmon->sel; i != selmon->sel; i = i->next)
+    if (ISVISIBLE(i))
       c = i;
-  if(c == NULL)
-    for(i = selmon->sel; i; i = i->next)
-      if(ISVISIBLE(i))
-	      c = i;
-  settile();
-  pop(nexttiled(c));
-  setfloat();
+  
+  if (!c)
+    for (i = selmon->sel; i; i = i->next)
+      if (ISVISIBLE(i))
+	c = i;
+
+  if (c)
+    {
+      selmon->sel = c;
+      settile();
+      zoom(arg);
+      setfloat();
+    }
 }
 
 static void zoomfloat(const Arg *arg)
@@ -2637,11 +2643,94 @@ static void zoomfloat(const Arg *arg)
 
 static void view_nonempty(const Arg *arg)
 {
-  if(selmon->stack == NULL)
+  if (selmon->stack == NULL)
     return;
   shiftview0(arg);
   if (!ISVISIBLE(selmon->stack))
     {
       view_nonempty(arg);
+    }
+}
+
+static void setlayout0(const Arg *arg)
+{
+  selmon->next_sellt++;
+  selmon->next_sellt = selmon->next_sellt % (LENGTH(layouts) - 1) + 1;
+  selmon->lt = &layouts[selmon->next_sellt];
+  arrange(selmon);
+  setfloat();
+}
+
+static void tcl(Monitor *m)
+{
+  int x, y, h, w, mw, sw, bdw;
+  unsigned int i, n;
+  Client * c;
+
+  for (n = 0, c = nexttiled(m->clients); c;
+       c = nexttiled(c->next), n++);
+
+  if (n == 0)
+    return;
+
+  c = nexttiled(m->clients);
+
+  mw = m->mfact * m->ww;
+  sw = (m->ww - mw) / 2;
+  bdw = (2 * c->bw);
+  resize(c,
+	 n < 3 ? m->wx : m->wx + sw,
+	 m->wy,
+	 n == 1 ? m->ww - bdw : mw - bdw,
+	 m->wh - bdw,
+	 False);
+
+  if (--n == 0)
+    return;
+
+  w = (m->ww - mw) / ((n > 1) + 1);
+  c = nexttiled(c->next);
+
+  if (n > 1)
+    {
+      x = m->wx + ((n > 1) ? mw + sw : mw);
+      y = m->wy;
+      h = m->wh / (n / 2);
+
+      if (h < bh)
+	h = m->wh;
+
+      for (i = 0; c && i < n / 2; c = nexttiled(c->next), i++)
+	{
+	  resize(c,
+		 x,
+		 y,
+		 w - bdw,
+		 (i + 1 == n / 2) ? m->wy + m->wh - y - bdw : h - bdw,
+		 False);
+
+	  if (h != m->wh)
+	    y = c->y + HEIGHT(c);
+	}
+    }
+
+  x = (n + 1 / 2) == 1 ? mw : m->wx;
+  y = m->wy;
+  h = m->wh / ((n + 1) / 2);
+
+  if (h < bh)
+    h = m->wh;
+
+  for (i = 0; c; c = nexttiled(c->next), i++)
+    {
+      resize(c,
+	     x,
+	     y,
+	     (i + 1 == (n + 1) / 2) ? w - bdw : w - bdw,
+	     (i + 1 == (n + 1) / 2) ? m->wy + m->wh - y - bdw : h - bdw,
+	     False);
+
+      if (h != m->wh)
+	y = c->y + HEIGHT(c);
     }
 }

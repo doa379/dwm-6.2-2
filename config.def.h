@@ -49,7 +49,7 @@ static const Rule rules[] = {
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
-static const Layout layouts[] = { { NULL }, { tile }, { monocle } };
+static const Layout layouts[] = { { NULL }, { tile }, { tcl }, { monocle } };
 static const char *kb_layouts[] = { "gb", "us", "ru" };
 /* key definitions */
 #define MODKEY Mod4Mask
@@ -102,8 +102,9 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
   { MODKEY,                       XK_f,      setlayout,      {.v = &layouts[0]} },
   { MODKEY,                       XK_t,      setlayout_float,{.v = &layouts[1]} },
-  { MODKEY,                       XK_m,      setlayout_float,{.v = &layouts[2]} },
-  { MODKEY,                       XK_space,  setlayout,      {0} },
+  { MODKEY,                       XK_u,      setlayout_float,{.v = &layouts[2]} },
+  { MODKEY,                       XK_m,      setlayout_float,{.v = &layouts[3]} },
+  { MODKEY,                       XK_space,  setlayout0,     {0} },
   { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
   { MODKEY,                       XK_BackSpace,      view,   {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_BackSpace,      tag,    {.ui = ~0 } },
