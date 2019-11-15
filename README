@@ -1,17 +1,14 @@
-dwm-6.2 with systray patch, plus other enhancements. 
-This project anticipates being close to vanilla-dwm. The only 
-elaborate patch is the systray patch which is taken from the suckless 
-website.
-The other enhancements are a number of small improvements to the 
-functionality and usability of dwm. Vanilla-dwm is too rigid to use 
-in my estimate. It works fine in cases requiring minimalist user 
-interaction but is rather limited and cumbersome as a daily driver 
-in desktop usage. 
-For instance, dwm now sets all clients to floating behaviour by default, 
-with tiling done upon manual and semi-automatic request. You can now 
-have tiling features in a floating client configuration. This allows 
-each tag to preserve its own configuration of clients without having 
-to use any sort of Pertag patch.
+This is dwm-6.2 with systray patch, plus other enhancements. This fork anticipates 
+being close to vanilla-dwm as much as possible. The only other elaborate patch is the 
+systray patch which is taken from the suckless website.
+
+There are a number of key enhancements that facilitate improvements to the usage 
+criteria of dwm as a daily driver. By default dwm now uses the floating layout across
+the entire program. Tiling and maximisation is now a manual action through the usual 
+Mod+t/m keymaps. However tiling features are performed semi-automatically before 
+dwm reverts to floating mode. You now effectively have tiling features in a 
+floating client configuration. This allows each tag to preserve its own configuration 
+of clients without having to store the state of each tag independently.
 
 
 dwm - dynamic window manager
