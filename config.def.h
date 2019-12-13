@@ -72,7 +72,7 @@ static const char *urxvtcmd[] = { "tabbed", "-c", "urxvt", "-embed", NULL };
 */
 static const char *termcmd[]  = { "urxvt", NULL };
 static const char *urxvtcmd[] = { "urxvt-bf", NULL };
-static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
+static const char *scrotcmd[] = { "scrot", "$HOME/.cache/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
 static const char *lockscmd[] = { "slock", NULL };
 static const char *brightnessupcmd[] = { "backlight", "+", NULL };
 static const char *brightnessdncmd[] = { "backlight", "-", NULL };
