@@ -128,7 +128,7 @@ typedef struct {
 } Layout;
 
 struct Monitor {
-  char nclients[4];
+  char nclients[5];
   float mfact;
   int nmaster;
   int num;
@@ -849,8 +849,8 @@ drawbar(Monitor *m)
       n++;
   if (n > 1)
     {
-      snprintf(m->nclients, sizeof m->clients, "[%d]", n);
-      x = drw_text(drw, x, 0, w + 4, bh, lrpad / 2, m->nclients, 0);
+      sprintf(m->nclients, "[%d]", n);
+      x = drw_text(drw, x, 0, w + 8, bh, lrpad / 2, m->nclients, 0);
     }
   /* */
 
