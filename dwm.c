@@ -850,7 +850,7 @@ drawbar(Monitor *m)
   if (n > 1)
     {
       snprintf(m->nclients, sizeof m->clients, "[%d]", n);
-      x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->nclients, 0);
+      x = drw_text(drw, x, 0, w + 5, bh, lrpad / 2, m->nclients, 0);
     }
   /* */
 
