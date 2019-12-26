@@ -11,8 +11,8 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Fixed:pixelsize=12" };
-static const char dmenufont[]       = "Sans:pixelsize=36";
+static const char *fonts[]          = { "Fixed:pixelsize=10" };
+static const char dmenufont[]       = "Sans:pixelsize=16";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -72,7 +72,7 @@ static const char *urxvtcmd[] = { "tabbed", "-c", "urxvt", "-embed", NULL };
 */
 static const char *termcmd[]  = { "urxvt", NULL };
 static const char *urxvtcmd[] = { "urxvt-bf", NULL };
-static const char *scrotcmd[] = { "scrot", "$HOME/.cache/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
+static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
 static const char *lockscmd[] = { "slock", NULL };
 static const char *brightnessupcmd[] = { "backlight", "+", NULL };
 static const char *brightnessdncmd[] = { "backlight", "-", NULL };
