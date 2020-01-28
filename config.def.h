@@ -11,7 +11,7 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Fixed:pixelsize=10" };
+static const char *fonts[]          = { "Fixed:pixelsize=14" };
 static const char dmenufont[]       = "Sans:pixelsize=16";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
@@ -39,7 +39,6 @@ static const Rule rules[] = {
   { "Chromium",               NULL,       NULL,       1 << 1,         False,       -1 },
   { "Thunderbird",            NULL,       NULL,       1 << 1,         False,       -1 },
   { "Firefox",                NULL,       NULL,       1 << 2,         False,       -1 },
-  { "urxvt",                  NULL,       NULL,       1 << 5,         False,       -1 },
   { "tabbed",                 NULL,       NULL,       1 << 5,         False,       -1 },
   { "Seamonkey",              NULL,       NULL,       1 << 10,        False,       -1 },
   { "libreoffice",            NULL,       NULL,       1 << 12,        False,       -1 },
@@ -71,7 +70,8 @@ static const char *termcmd[]  = { "tabbed", "-c", "xterm", "-into", NULL };
 static const char *urxvtcmd[] = { "tabbed", "-c", "urxvt", "-embed", NULL };
 */
 static const char *termcmd[]  = { "urxvt", NULL };
-static const char *urxvtcmd[] = { "urxvt-bf", NULL };
+static const char *termcmd1[] = { "urxvt", "-fn", "-*-tamsyn-medium-r-*--20-*-*-*-*-*-*-*", NULL };
+static const char *termcmd2[] = { "urxvt", "-fn", "-*-terminus-medium-r-*--18-*-*-*-*-*-*-*", NULL };
 static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
 static const char *lockscmd[] = { "slock", NULL };
 static const char *brightnessupcmd[] = { "backlight", "+", NULL };
@@ -133,7 +133,8 @@ static Key keys[] = {
   { MODKEY,                       XK_Up,     shiftview,	     {.i = +1 } },
   { MODKEY|ShiftMask,             XK_l,                      spawn, {.v = lockscmd}},
   { MODKEY|ShiftMask,             XK_s,                      spawn, {.v = scrotcmd}},
-  { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = urxvtcmd}},
+  { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = termcmd1}},
+  { MODKEY|ShiftMask,             XK_t,                      spawn, {.v = termcmd2}},
   { 0,                            XF86XK_AudioRaiseVolume,   spawn, {.v = audioupcmd}},
   { 0,                            XF86XK_AudioLowerVolume,   spawn, {.v = audiodncmd}},
   { 0,                            XF86XK_AudioMute,          spawn, {.v = audiomutecmd}},
