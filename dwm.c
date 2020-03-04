@@ -823,11 +823,7 @@ void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, unsig
   if (N > N_COLOR_SCHEMES)
     N = N_COLOR_SCHEMES;
 
-  unsigned offset = 0;
-  for (unsigned i = 0; i < N; i++)
-    offset += TEXTW(section[i]);
-
-  offset += stw;
+  unsigned offset = TEXTW(string) - (N - 1) * (TEXTW(STEXT_DELIM) - 2 * lrpad) + stw;
 
   for (unsigned i = 0; i < N; i++)
   {
