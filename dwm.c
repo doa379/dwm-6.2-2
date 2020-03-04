@@ -75,7 +75,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel }; /* color schemes */
+enum { SchemeNorm, SchemeSel, Scheme0, Scheme1, Scheme2, Scheme3, Scheme4, Scheme5, Scheme6, Scheme7, Scheme8, Scheme9 }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
@@ -281,10 +281,13 @@ static void setlayout0(const Arg *);
 static void tcl(Monitor *);
 /* */
 
+/* configuration, allows nested code to access above variables */
+#include "config.h"
+
 /* variables */
 static Systray *systray =  NULL;
 static const char broken[] = "broken";
-static char stext[256];
+static char stext[STEXT_LEN];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -320,9 +323,6 @@ static Window root, wmcheckwin;
 /* Customisations */
 static unsigned char selkb;
 /* */
-
-/* configuration, allows nested code to access above variables */
-#include "config.h"
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -802,6 +802,41 @@ dirtomon(int dir)
   return m;
 }
 
+void tokenize_string(unsigned STR_LEN, char array[][STR_LEN], unsigned *N, char *string, const char *delim)
+{
+  char *token = strtok(string, delim);
+
+  for (unsigned i = 0; token; *N = i++ +1)
+  {
+    strcpy(array[i], token);
+    token = strtok(NULL, delim);
+  }
+}
+
+void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, unsigned pad, char *string) 
+{
+  unsigned N = N_COLOR_SCHEMES, STR_LEN = 64;
+  char st[STEXT_LEN], section[N][STR_LEN];
+  strcpy(st, string); 
+  tokenize_string(STR_LEN, section, &N, st, STEXT_DELIM);
+
+  if (N > N_COLOR_SCHEMES)
+    N = N_COLOR_SCHEMES;
+
+  unsigned offset = 0;
+  for (unsigned i = 0; i < N; i++)
+    offset += TEXTW(section[i]);
+
+  offset += stw;
+
+  for (unsigned i = 0; i < N; i++)
+  {
+    drw_setscheme(drw, scheme[i + 2]); 
+    drw_text(drw, m->ww - offset + *sw, 0, TEXTW(section[i]), bh, pad, section[i], 0);
+    *sw += TEXTW(section[i]);
+  }
+}
+
 void
 drawbar(Monitor *m)
 {
@@ -816,9 +851,13 @@ drawbar(Monitor *m)
 
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
+    /*
     drw_setscheme(drw, scheme[SchemeNorm]);
-    sw = TEXTW(stext) - lrpad / 2 + 2; /* 2px right padding */
+    sw = TEXTW(stext) - lrpad / 2 + 2;*/ /* 2px right padding */
+    /*
     drw_text(drw, m->ww - sw - stw, 0, sw, bh, lrpad / 2 - 2, stext, 0);
+    */
+    drw_stext_colors(m, drw, &sw, stw, bh, lrpad / 2 - 2, stext);
   }
 
   resizebarwin(m);
