@@ -7,16 +7,16 @@ New Features
 ------------
 
 * The floating layout is used across the entire program. Tiling and
-maximisation is now a manual action through the usual 
+maximization are now a manual action through the usual 
 Mod+t/m keymaps. Tiling features are performed semi-automatically before
-reverting to floating mode. This allows each tag to be tiled floating client
-configuration. This allows each tag to preserve its own configuration without
+reverting to floating mode. This allows each tag to be tiled in a floating client
+configuration. Hence each tag preserves its own configuration without
 having to store the state of each tag independently.
 
 * Colored statusbar. The color schemes used in dwm are hard coded in config.h
 and as such dwm dynamically allocates color schemes at the outset. You can
 now pass a delimiter ("|" say) in the root string and dwm will cycle through
-the array of color schemes and assign a scheme to the text contained within
+the array of color schemes and assign a scheme to the string contained within
 the delimiters. The order of the coloring will follow the ordering of the
 colors defined in the array of color schemes. The overheads for this feature
 have been kept to a bare minimum. It is a simple patch that introduces a
