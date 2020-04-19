@@ -3,6 +3,7 @@
 #include "XF86keysym.h"
 
 #define STEXT_LEN 512
+#define STEXT_SECTION_LEN 64
 #define N_COLOR_SCHEMES 10
 #define STEXT_DELIM "|"
 

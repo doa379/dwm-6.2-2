@@ -815,10 +815,10 @@ void tokenize_string(unsigned STR_LEN, char array[][STR_LEN], unsigned *N, char 
 
 void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, char *string) 
 {
-  unsigned N = N_COLOR_SCHEMES, STR_LEN = 64;
-  char st[STEXT_LEN], section[N][STR_LEN];
+  unsigned N = 0;
+  char st[STEXT_LEN], section[N_COLOR_SCHEMES][STEXT_SECTION_LEN];
   strcpy(st, string); 
-  tokenize_string(STR_LEN, section, &N, st, STEXT_DELIM);
+  tokenize_string(STEXT_SECTION_LEN, section, &N, st, STEXT_DELIM);
 
   if (N > N_COLOR_SCHEMES)
     N = N_COLOR_SCHEMES;
