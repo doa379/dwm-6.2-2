@@ -813,7 +813,7 @@ void tokenize_string(unsigned STR_LEN, char array[][STR_LEN], unsigned *N, char 
   }
 }
 
-void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, unsigned pad, char *string) 
+void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, char *string) 
 {
   unsigned N = N_COLOR_SCHEMES, STR_LEN = 64;
   char st[STEXT_LEN], section[N][STR_LEN];
@@ -823,13 +823,13 @@ void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, unsig
   if (N > N_COLOR_SCHEMES)
     N = N_COLOR_SCHEMES;
 
-  unsigned offset = TEXTW(string) - (N - 1) * (TEXTW(STEXT_DELIM) - 2 * lrpad) + stw;
+  unsigned offset = TEXTW(string) - (N - 1) * (TEXTW(STEXT_DELIM)) + (N + 2) * lrpad + stw;
 
   for (unsigned i = 0; i < N; i++)
   {
     drw_setscheme(drw, scheme[i + 2]); 
-    drw_text(drw, m->ww - offset + *sw, 0, TEXTW(section[i]), bh, pad, section[i], 0);
-    *sw += TEXTW(section[i]);
+    drw_text(drw, m->ww - offset + *sw, 0, TEXTW(section[i]), bh, 0, section[i], 0);
+    *sw += TEXTW(section[i]) - lrpad / 2;
   }
 }
 
@@ -853,7 +853,7 @@ drawbar(Monitor *m)
     /*
     drw_text(drw, m->ww - sw - stw, 0, sw, bh, lrpad / 2 - 2, stext, 0);
     */
-    drw_stext_colors(m, drw, &sw, stw, bh, lrpad / 2 - 2, stext);
+    drw_stext_colors(m, drw, &sw, stw, bh, stext);
   }
 
   resizebarwin(m);
