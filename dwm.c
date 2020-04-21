@@ -2586,7 +2586,7 @@ static void setkblayout(const Arg *arg)
   drawbar(selmon);
 }
 
-static void view_client(const Arg *arg)
+static void view_clients(const Arg *arg)
 {
   if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
     return;
@@ -2598,7 +2598,7 @@ static void view_client(const Arg *arg)
   arrange(selmon);
 }
 
-static void shiftview_client(const Arg *arg)
+static void shiftview_clients(const Arg *arg)
 {
   Arg tag;
   if(arg->i > 0)
@@ -2607,7 +2607,7 @@ static void shiftview_client(const Arg *arg)
   else
     tag.ui = (selmon->tagset[selmon->seltags] >> -arg->i)
       | (selmon->tagset[selmon->seltags] << (LENGTH(tags) + arg->i));
-  view_client(&tag);
+  view_clients(&tag);
 }
 
 static void shiftview(const Arg *arg)
@@ -2693,13 +2693,10 @@ static void view_nonempty(const Arg *arg)
   if (selmon->stack == NULL)
     return;
 
-  shiftview_client(arg);
-  shiftview(arg);
+  shiftview_clients(arg);
 
   if (!ISVISIBLE(selmon->stack))
-  {
     view_nonempty(arg);
-  }
 }
 
 static void setlayout0(const Arg *arg)
