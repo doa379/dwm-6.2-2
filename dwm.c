@@ -435,10 +435,8 @@ arrange(Monitor *m)
 	 showhide(m->stack);
   if (m) {
     arrangemon(m);
-/* Customisation
-    restack(m);
-*/
-  } else for (m = mons; m; m = m->next)
+  } 
+  else for (m = mons; m; m = m->next)
 	   arrangemon(m);
 }
 
@@ -492,10 +490,9 @@ buttonpress(XEvent *e)
     if (i < LENGTH(tags)) {
       click = ClkTagBar;
       arg.ui = 1 << i;
-    } /* Customisation */
+    }
     else if (ev->x < x + blw)
       click = ClkKbLayout;
-    /* */
     else if (ev->x > selmon->ww - TEXTW(stext) - getsystraywidth())
       click = ClkStatusText;
     else
@@ -806,7 +803,8 @@ dirtomon(int dir)
   if (dir > 0) {
     if (!(m = selmon->next))
       m = mons;
-  } else if (selmon == mons)
+  } 
+  else if (selmon == mons)
     for (m = mons; m->next; m = m->next);
   else
     for (m = mons; m->next != selmon; m = m->next);
@@ -858,12 +856,6 @@ drawbar(Monitor *m)
 
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
-    /*
-    drw_setscheme(drw, scheme[SchemeNorm]);
-    sw = TEXTW(stext) - lrpad / 2 + 2;*/ /* 2px right padding */
-    /*
-    drw_text(drw, m->ww - sw - stw, 0, sw, bh, lrpad / 2 - 2, stext, 0);
-    */
     drw_stext_colors(m, drw, &sw, stw, bh, stext);
   }
 
@@ -1963,7 +1955,6 @@ tile(Monitor *m)
 void
 togglebar(const Arg *arg)
 {
-  focus(NULL);
   unsigned i = tag_idx(selmon->tagset[selmon->seltags]);
   selmon->showbar = selmon->showbar_tag[i] = !selmon->showbar;
   updatebarpos(selmon);
@@ -1972,10 +1963,10 @@ togglebar(const Arg *arg)
     XWindowChanges wc;
     if (!selmon->showbar)
       wc.y = -bh;
-    else if (selmon->showbar) {
+    else {
       wc.y = 0;
       if (!selmon->topbar)
-	wc.y = selmon->mh - bh;
+	      wc.y = selmon->mh - bh;
     }
     XConfigureWindow(dpy, systray->win, CWY, &wc);
   }
@@ -2018,6 +2009,9 @@ toggleview(const Arg *arg)
 
   if (newtagset) {
     selmon->tagset[selmon->seltags] = newtagset;
+    unsigned i = tag_idx(selmon->tagset[selmon->seltags]);
+    if (selmon->showbar_tag[i] != selmon->showbar)
+      togglebar(NULL);
     focus(NULL);
     arrange(selmon);
   }
@@ -2444,12 +2438,12 @@ view(const Arg *arg)
   selmon->seltags ^= 1; /* toggle sel tagset */
   if (arg->ui & TAGMASK)
     selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
-  focus(NULL);
-  arrange(selmon);
 
   unsigned i = tag_idx(selmon->tagset[selmon->seltags]);
   if (selmon->showbar_tag[i] != selmon->showbar)
     togglebar(NULL);
+  focus(NULL);
+  arrange(selmon);
 }
 
 Client *
@@ -2461,7 +2455,7 @@ wintoclient(Window w)
   for (m = mons; m; m = m->next)
     for (c = m->clients; c; c = c->next)
       if (c->win == w)
-	return c;
+	      return c;
   return NULL;
 }
 
@@ -2471,7 +2465,7 @@ wintosystrayicon(Window w) {
 
   if (!showsystray || !w)
     return i;
-  for (i = systray->icons; i && i->win != w; i = i->next) ;
+  for (i = systray->icons; i && i->win != w; i = i->next);
   return i;
 }
 
@@ -2593,30 +2587,6 @@ static void setkblayout(const Arg *arg)
   drawbar(selmon);
 }
 
-static void view_clients(const Arg *arg)
-{
-  if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
-    return;
-  if (ISVISIBLE(selmon->stack))
-    selmon->seltags ^= 1;
-  if (arg->ui & TAGMASK)
-    selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
-  focus(NULL);
-  arrange(selmon);
-}
-
-static void shiftview_clients(const Arg *arg)
-{
-  Arg tag;
-  if(arg->i > 0)
-    tag.ui = (selmon->tagset[selmon->seltags] << arg->i)
-      | (selmon->tagset[selmon->seltags] >> (LENGTH(tags) - arg->i));
-  else
-    tag.ui = (selmon->tagset[selmon->seltags] >> -arg->i)
-      | (selmon->tagset[selmon->seltags] << (LENGTH(tags) + arg->i));
-  view_clients(&tag);
-}
-
 static void shiftview(const Arg *arg)
 {
   Arg tag;
@@ -2700,7 +2670,7 @@ static void view_nonempty(const Arg *arg)
   if (selmon->stack == NULL)
     return;
 
-  shiftview_clients(arg);
+  shiftview(arg);
 
   if (!ISVISIBLE(selmon->stack))
     view_nonempty(arg);
