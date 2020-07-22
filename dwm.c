@@ -1789,9 +1789,7 @@ setup(void)
   if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
     die("no fonts could be loaded.");
   lrpad = drw->fonts->h;
-  /* Customisation */
-  bh = drw->fonts->h - 1;
-  /* */
+  bh = drw->fonts->h + BH_PADDING;
   updategeom();
   /* init atoms */
   utf8string = XInternAtom(dpy, "UTF8_STRING", False);
