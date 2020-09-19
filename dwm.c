@@ -76,7 +76,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel, Scheme0, Scheme1, Scheme2, Scheme3, Scheme4, Scheme5, Scheme6, Scheme7, Scheme8, Scheme9 }; /* color schemes */
+enum { SchemeNorm, SchemeSel, Scheme0, Scheme1, Scheme2, Scheme3, Scheme4, Scheme5, Scheme6, Scheme7, Scheme8, Scheme9, Scheme10, Scheme11, Scheme12 }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
@@ -286,7 +286,7 @@ unsigned tag_idx(unsigned);
 /* variables */
 static Systray *systray =  NULL;
 static const char broken[] = "broken";
-static char stext[STEXT_LEN];
+static char stext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -811,34 +811,35 @@ dirtomon(int dir)
   return m;
 }
 
-void tokenize_string(unsigned STR_LEN, char array[][STR_LEN], unsigned *N, char *string, const char *delim)
+static unsigned tokenize_string(unsigned STRLEN, char array[][STRLEN], char *string, const char *delim)
 {
+  unsigned n = 0;
   char *token = strtok(string, delim);
-
-  for (unsigned i = 0; token; *N = i++ +1)
+  for (n = 0; token; n++)
   {
-    strcpy(array[i], token);
+    strcpy(array[n], token);
     token = strtok(NULL, delim);
   }
+
+  return n;
 }
 
-void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh, char *string) 
+void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh)
 {
-  unsigned N = 0;
-  char st[STEXT_LEN], section[N_COLOR_SCHEMES][STEXT_SECTION_LEN];
-  strcpy(st, string); 
-  tokenize_string(STEXT_SECTION_LEN, section, &N, st, STEXT_DELIM);
-
-  if (N > N_COLOR_SCHEMES)
-    N = N_COLOR_SCHEMES;
-
-  unsigned offset = TEXTW(string) - (N - 1) * (TEXTW(STEXT_DELIM)) + (N + 2) * lrpad + stw;
-
+  char stext_copy[sizeof stext], section[LENGTH(colors)][STEXT_SECTIONLEN];
+  strcpy(stext_copy, stext);
+  unsigned N = tokenize_string(STEXT_SECTIONLEN, section, stext_copy, STEXTDELIM);
+  if (N > LENGTH(colors))
+    N = LENGTH(colors);
+  
+  unsigned pad = lrpad / 2;
+  *sw = TEXTW(stext) + stw;
+  unsigned offset = 0;
   for (unsigned i = 0; i < N; i++)
   {
-    drw_setscheme(drw, scheme[i + 2]); 
-    drw_text(drw, m->ww - offset + *sw, 0, TEXTW(section[i]), bh, 0, section[i], 0);
-    *sw += TEXTW(section[i]) - lrpad / 2;
+    drw_setscheme(drw, scheme[i + 2]);
+    drw_text(drw, m->ww - *sw + offset, 0, *sw, bh, pad, section[i], 0);
+    offset += TEXTW(section[i]) - pad;
   }
 }
 
@@ -856,7 +857,7 @@ drawbar(Monitor *m)
 
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
-    drw_stext_colors(m, drw, &sw, stw, bh, stext);
+    drw_stext_colors(m, drw, &sw, stw, bh);
   }
 
   resizebarwin(m);

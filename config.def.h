@@ -1,12 +1,9 @@
 /* See LICENSE file for copyright and license details. */
 
 #include "XF86keysym.h"
-
 #define BH_PADDING -1
-#define STEXT_LEN 512
-#define STEXT_SECTION_LEN 64
-#define N_COLOR_SCHEMES 10
-#define STEXT_DELIM "|"
+#define STEXT_SECTIONLEN 64
+#define STEXTDELIM "|"
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
@@ -18,7 +15,7 @@ static const int showsystray        = 1;     /* 0 means no systray */
 static const bool showbar           = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { "Fixed:pixelsize=14" };
-static const char dmenufont[]       = "Sans:pixelsize=16";
+static const char dmenufont[]       = "Sans:pixelsize=20";
 static const char col_gray10[]      = "#1a1a1a";
 static const char col_gray20[]      = "#333333";
 static const char col_gray30[]      = "#4d4d4d";
@@ -36,21 +33,32 @@ static const char col_cyan60[]      = "#33c5ff";
 static const char col_cyan70[]      = "#66d4ff";
 static const char col_cyan80[]      = "#99e2ff";
 static const char col_cyan90[]      = "#ccf1ff";
+static const char col_yellow[]      = "#757500";
+static const char col_yellow70[]    = "#ffff66";
+static const char col_yellow80[]    = "#ffff99";
+static const char col_yellow90[]    = "#ffffcc";
+static const char col_magenta[]     = "#750075";
+static const char col_magenta70[]   = "#ff66ff";
+static const char col_magenta80[]   = "#ff99ff";
+static const char col_magenta90[]   = "#ffccff";
 static const char col_red[]         = "#ff0000";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray90, col_gray10, col_cyan },
-	[SchemeSel]  = { col_gray90, col_cyan,   col_red  },
-	[Scheme0]    = { col_gray80, col_cyan30, "#000000"  },
-	[Scheme1]    = { col_gray20, col_cyan40, "#000000"  },
-	[Scheme2]    = { col_gray20, col_cyan50, "#000000"  },
-	[Scheme3]    = { col_gray10, col_cyan60, "#000000"  },
-	[Scheme4]    = { col_gray10, col_cyan70, "#000000"  },
-	[Scheme5]    = { col_gray10, col_cyan80, "#000000"  },
-	[Scheme6]    = { col_gray10, col_cyan90, "#000000"  },
-	[Scheme7]    = { col_gray10, col_gray90, "#000000"  },
-	[Scheme8]    = { col_cyan,   col_red,    "#000000"  },
-	[Scheme9]    = { col_red,    col_cyan,   "#000000"  },
+	[SchemeNorm] = { col_gray80,    col_gray10,    col_cyan },
+	[SchemeSel]  = { col_gray80,    col_cyan,      col_red  },
+	[Scheme0]    = { col_cyan80,    col_gray10, "#000000"  },
+	[Scheme1]    = { col_cyan80,    col_gray10, "#000000"  },
+	[Scheme2]    = { col_yellow80,  col_gray10, "#000000"  },
+	[Scheme3]    = { col_magenta80, col_gray10, "#000000"  },
+	[Scheme4]    = { col_cyan80,    col_gray10, "#000000"  },
+	[Scheme5]    = { col_yellow80,  col_gray10, "#000000"  },
+	[Scheme6]    = { col_magenta80, col_gray10, "#000000"  },
+	[Scheme7]    = { col_gray80,    col_gray10, "#000000"  },
+	[Scheme8]    = { col_cyan80,    col_gray10, "#000000"  },
+	[Scheme9]    = { col_red,       col_cyan,   "#000000"  },
+	[Scheme10]   = { col_gray10,    col_gray80, "#000000"  },
+	[Scheme11]   = { col_gray10,    col_gray80, "#000000"  },
+	[Scheme12]   = { col_gray10,    col_gray80, "#000000"  },
 };
 
 /* tagging */
@@ -63,7 +71,7 @@ static const Rule rules[] = {
    */
   /* class      instance    title       tags mask     isfloating   monitor */
   { "Gimp",                   NULL,       NULL,       0,              True,        -1 },
-  { "Firefox",                NULL,       NULL,       1 << 2,         False,       -1 },
+  { "tabbed",                 NULL,       NULL,       1 << 5,         False,       -1 },
 };
 
 /* layout(s) */
