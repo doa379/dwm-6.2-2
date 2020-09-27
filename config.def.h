@@ -2,7 +2,6 @@
 
 #include "XF86keysym.h"
 #define BH_PADDING -1
-#define STEXT_SECTIONLEN 64
 #define STEXTDELIM "|"
 
 /* appearance */

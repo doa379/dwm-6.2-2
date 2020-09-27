@@ -817,7 +817,14 @@ static unsigned tokenize_string(unsigned STRLEN, char array[][STRLEN], char *str
   char *token = strtok(string, delim);
   for (n = 0; token; n++)
   {
-    strcpy(array[n], token);
+    if (strlen(token) < STRLEN)
+      strcpy(array[n], token);
+    else
+    {
+      strncpy(array[n], token, STRLEN - 1);
+      array[n][STRLEN - 1] = '\0';
+    }
+
     token = strtok(NULL, delim);
   }
 
@@ -826,15 +833,14 @@ static unsigned tokenize_string(unsigned STRLEN, char array[][STRLEN], char *str
 
 void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh)
 {
-  char stext_copy[sizeof stext], section[LENGTH(colors)][STEXT_SECTIONLEN];
-  strcpy(stext_copy, stext);
-  unsigned N = tokenize_string(STEXT_SECTIONLEN, section, stext_copy, STEXTDELIM);
+  char stext_dup[sizeof stext], section[LENGTH(colors)][64];
+  strcpy(stext_dup, stext);
+  unsigned N = tokenize_string(64, section, stext_dup, STEXTDELIM),
+    pad = lrpad / 2, offset = 0;
   if (N > LENGTH(colors))
     N = LENGTH(colors);
   
-  unsigned pad = lrpad / 2;
   *sw = TEXTW(stext) + stw;
-  unsigned offset = 0;
   for (unsigned i = 0; i < N; i++)
   {
     drw_setscheme(drw, scheme[i + 2]);
@@ -854,7 +860,6 @@ drawbar(Monitor *m)
 
   if(showsystray && m == systraytomon(m))
     stw = getsystraywidth();
-
   /* draw status first so it can be overdrawn by tags later */
   if (m == selmon) { /* status is only drawn on selected monitor */
     drw_stext_colors(m, drw, &sw, stw, bh);
