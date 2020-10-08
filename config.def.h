@@ -1,6 +1,5 @@
 /* See LICENSE file for copyright and license details. */
 
-#include "XF86keysym.h"
 #define BH_PADDING -1
 #define STEXTDELIM "|"
 
@@ -99,18 +98,10 @@ static const char *termcmd[]  = { "tabbed", "-c", "xterm", "-into", NULL };
 static const char *urxvtcmd[] = { "tabbed", "-c", "urxvt", "-embed", NULL };
 */
 static const char *termcmd[]  = { "urxvt", NULL };
-static const char *termcmd1[] = { "urxvt", "-fn", "-*-tamsyn-medium-r-*--20-*-*-*-*-*-*-*", NULL };
-static const char *termcmd2[] = { "urxvt", "-fn", "-*-terminus-medium-r-*--18-*-*-*-*-*-*-*", NULL };
+static const char *termcmd1[] = { "urxvt1", NULL };
+static const char *termcmd2[] = { "urxvt2", NULL };
 static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
-static const char *lockscmd[] = { "slock", NULL };
-static const char *brightnessupcmd[] = { "backlight", "+", NULL };
-static const char *brightnessdowncmd[] = { "backlight", "-", NULL };
-static const char *audioupcmd[] = { "vol", "+", NULL };
-static const char *audiodowncmd[] = { "vol", "-", NULL };
-static const char *audiomutecmd[] = { "vol", "0", NULL };
-static const char *displaycmd[] = { "extdisplay", NULL };
-static const char *suspendcmd[] = { "powerstate", "M", NULL };
-static const char *hibernatecmd[] = { "powerstate", "D", NULL };
+static const char *lockscmd[] = { "lockall", NULL };
 
 static Key keys[] = {
   /* modifier                     key        function        argument */
@@ -164,18 +155,6 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_s,                      spawn, {.v = scrotcmd}},
   { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = termcmd1}},
   { MODKEY|ShiftMask,             XK_t,                      spawn, {.v = termcmd2}},
-  { 0,                            XF86XK_AudioRaiseVolume,   spawn, {.v = audioupcmd}},
-  { 0,                            XF86XK_AudioLowerVolume,   spawn, {.v = audiodowncmd}},
-  { 0,                            XF86XK_AudioMute,          spawn, {.v = audiomutecmd}},
-  { 0,                            XF86XK_MonBrightnessUp,    spawn, {.v = brightnessupcmd}},
-  { 0,                            XF86XK_MonBrightnessDown,  spawn, {.v = brightnessdowncmd}},
-  { 0,                            XF86XK_Display,            spawn, {.v = displaycmd}},
-  { 0,                            XF86XK_Sleep,              spawn, {.v = suspendcmd}},
-  { 0,                            XF86XK_Standby,            spawn, {.v = suspendcmd}},
-  { 0,                            XF86XK_PowerOff,           spawn, {.v = hibernatecmd}},
-  { 0,                            XF86XK_Hibernate,          spawn, {.v = hibernatecmd}},
-  { MODKEY|ShiftMask,             XK_m,                      spawn, {.v = suspendcmd}},
-  { MODKEY|ShiftMask,             XK_d,                      spawn, {.v = hibernatecmd}},
 };
 
 /* button definitions */
