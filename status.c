@@ -542,7 +542,7 @@ static void init_curl(ip_t *ip)
   curl_easy_setopt(ip->handle, CURLOPT_URL, IPURL[0]);
   curl_easy_setopt(ip->handle, CURLOPT_WRITEFUNCTION, writefunc);
   curl_easy_setopt(ip->handle, CURLOPT_WRITEDATA, ip);
-  curl_easy_setopt(ip->handle, CURLOPT_TIMEOUT, 1L);
+  curl_easy_setopt(ip->handle, CURLOPT_TIMEOUT_MS, 150L);
 }
 
 static void deinit_ip(ip_t *ip)
