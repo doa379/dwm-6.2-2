@@ -41,6 +41,7 @@
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
+#include <sys/poll.h>
 
 #include "drw.h"
 #include "util.h"
@@ -279,6 +280,9 @@ static void view_nonempty(const Arg *);
 static void setlayout0(const Arg *);
 static void tcl(Monitor *);
 unsigned tag_idx(unsigned);
+void init_status(void);
+unsigned status(Display *);
+void deinit_status(void);
 
   /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -811,18 +815,18 @@ dirtomon(int dir)
   return m;
 }
 
-static unsigned tokenize_string(unsigned STRLEN, char array[][STRLEN], char *string, const char *delim)
+static unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, const char *delim)
 {
   unsigned n = 0;
   char *token = strtok(string, delim);
   for (n = 0; token; n++)
   {
-    if (strlen(token) < STRLEN)
+    if (strlen(token) < TOKLEN)
       strcpy(array[n], token);
     else
     {
-      strncpy(array[n], token, STRLEN - 1);
-      array[n][STRLEN - 1] = '\0';
+      strncpy(array[n], token, TOKLEN - 1);
+      array[n][TOKLEN - 1] = '\0';
     }
 
     token = strtok(NULL, delim);
@@ -1612,9 +1616,26 @@ run(void)
   XEvent ev;
   /* main event loop */
   XSync(dpy, False);
+  /*
   while (running && !XNextEvent(dpy, &ev))
     if (handler[ev.type])
-      handler[ev.type](&ev); /* call handler */
+      handler[ev.type](&ev);
+  */
+  struct pollfd pfd;
+  pfd.fd = ConnectionNumber(dpy);
+  pfd.events = POLLIN;
+  unsigned interval;
+  while (running)
+  {
+    interval = status(dpy);
+    poll(&pfd, 1, interval * 1000);
+    while (XPending(dpy))
+    {
+      XNextEvent(dpy, &ev);
+      if (handler[ev.type])
+        handler[ev.type](&ev); /* call handler */
+    }
+  }
 }
 
 void
@@ -2569,6 +2590,7 @@ main(int argc, char *argv[])
     die("dwm: cannot open display");
   checkotherwm();
   setup();
+  init_status();
 #ifdef __OpenBSD__
   if (pledge("stdio rpath proc exec", NULL) == -1)
     die("pledge");
@@ -2576,6 +2598,7 @@ main(int argc, char *argv[])
   scan();
   run();
   cleanup();
+  deinit_status();
   XCloseDisplay(dpy);
   return EXIT_SUCCESS;
 }
