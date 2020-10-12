@@ -110,8 +110,8 @@ static const char *audioupcmd[] = { "vol", "+", NULL };
 static const char *audiodncmd[] = { "vol", "-", NULL };
 static const char *audiomutecmd[] = { "vol", "0", NULL };
 static const char *displaycmd[] = { "switchdisplay", NULL };
-static const char *sleepcmd[] = { "/usr/local/bin/zzz", "M", NULL };
-static const char *suspendcmd[] = { "/usr/local/bin/zzz", "D", NULL };
+static const char *sleepcmd[] = { "sudo", "/usr/local/bin/zzz", "M", NULL };
+static const char *suspendcmd[] = { "sudo", "/usr/local/bin/zzz", "D", NULL };
 
 static Key keys[] = {
   /* modifier                     key        function        argument */

@@ -118,15 +118,15 @@ typedef struct
   bool found;
 } device_t;
 
-cpu_t cpu;
-mem_t mem;
-diskstats_t DISKSTATS[LENGTH(BLKDEV)];
-net_t NET[LENGTH(NETIF)];
-wireless_t WLAN[LENGTH(NETIF)];
-ip_t ip;
+static cpu_t cpu;
+static mem_t mem;
+static diskstats_t DISKSTATS[LENGTH(BLKDEV)];
+static net_t NET[LENGTH(NETIF)];
+static wireless_t WLAN[LENGTH(NETIF)];
+static ip_t ip;
 bool ac_state;
-batteries_t batteries;
-char SND[16], TIME[32];
+static batteries_t batteries;
+static char SND[16], TIME[32];
 static unsigned char interval = UPDATE_INTV;
 
 static void read_file(void *data, void (*cb)(), const char FILENAME[])

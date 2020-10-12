@@ -1620,11 +1620,6 @@ run(void)
   XEvent ev;
   /* main event loop */
   XSync(dpy, False);
-  /*
-  while (running && !XNextEvent(dpy, &ev))
-    if (handler[ev.type])
-      handler[ev.type](&ev);
-  */
   unsigned NFD = 2;
   struct pollfd PFD[NFD];
   /* Display/User event fd */
@@ -1636,7 +1631,8 @@ run(void)
   PFD[1].fd = open(DEV, O_RDONLY);
   PFD[1].events = POLLIN;
   struct input_event evt;
-  unsigned interval, poll_interval;
+  int interval;
+  unsigned poll_interval = 1;
   float time_diff;
   time_t init, now;
   while (running)
