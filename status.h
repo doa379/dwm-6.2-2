@@ -5,15 +5,6 @@
 #define MAX_BATTERIES 2
 #define SUSPEND_THRESHOLD_PERC 5
 /* #define PROC_ACPI */
-#define SLEEP_CMD "sudo /usr/local/bin/zzz M"
-#define SUSPEND_CMD "sudo /usr/local/bin/zzz D"
-#define SWITCHDISPLAY_CMD "switchdisplay"
-#define VOLUMEMUTE_CMD "vol 0"
-#define VOLUMEUP_CMD "vol +"
-#define VOLUMEDOWN_CMD "vol -"
-#define BRIGHTNESSUP_CMD "sudo /usr/local/bin/backlight +"
-#define BRIGHTNESSDOWN_CMD "sudo /usr/local/bin/backlight -"
-#define LOCKALL_CMD "lockall"
 #define UP_ARROW                "\u2b06"
 #define DOWN_ARROW		          "\u2b07"
 #define UP_TRI                  "\u25b4"
@@ -36,7 +27,7 @@
 
 static const char *BLKDEV[] = { "nvme0n1", };
 static const char *DIRECTORY[] = { "/", "/tmp" };
-static const char *NETIF[] = { "eth0", "wlan0", "wlan1", "wlan2" };
+static const char *NETIF[] = { "eth0", "wlan0", /*"wlan1", "wlan2"*/ };
 static const char *IPLIST = "/tmp/iplist";
 static const char *IPURL[] = {
 	"http://whatismyip.akamai.com",
@@ -44,4 +35,3 @@ static const char *IPURL[] = {
 	"http://ipinfo.io/ip",
 	"http://ipecho.net/plain",
 };
-

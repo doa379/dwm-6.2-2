@@ -285,10 +285,10 @@ static void tcl(Monitor *);
 unsigned tag_idx(unsigned);
 void init_status(void);
 void deinit_status(void);
-unsigned status(Display *, char []);
+int status(char []);
 void input_event_node(char [], const char []);
 
-  /* configuration, allows nested code to access above variables */
+/* configuration, allows nested code to access above variables */
 #include "config.h"
 
 /* variables */
@@ -1641,8 +1641,16 @@ run(void)
   time_t init, now;
   while (running)
   {
-    interval = status(dpy, stext);
-    poll_interval = interval;
+    interval = status(stext);
+    XStoreName(dpy, DefaultRootWindow(dpy), stext);
+    if (interval < 0)
+    {
+      Arg arg = { .v = suspendcmd };
+      spawn(&arg);
+    }
+    else
+      poll_interval = interval;
+
     time(&init);
     poll_resume:
     poll(PFD, NFD, poll_interval * 1000);

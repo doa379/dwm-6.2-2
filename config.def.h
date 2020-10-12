@@ -110,9 +110,8 @@ static const char *audioupcmd[] = { "vol", "+", NULL };
 static const char *audiodncmd[] = { "vol", "-", NULL };
 static const char *audiomutecmd[] = { "vol", "0", NULL };
 static const char *displaycmd[] = { "switchdisplay", NULL };
-static const char *suspendcmd[] = { "/usr/local/bin/zzz", "M", NULL };
-static const char *hibernatecmd[] = { "/usr/local/bin/zzz", "D", NULL };
-
+static const char *sleepcmd[] = { "/usr/local/bin/zzz", "M", NULL };
+static const char *suspendcmd[] = { "/usr/local/bin/zzz", "D", NULL };
 
 static Key keys[] = {
   /* modifier                     key        function        argument */
@@ -172,10 +171,10 @@ static Key keys[] = {
   { 0,                            XF86XK_MonBrightnessUp,    spawn, {.v = brightnessupcmd}},
   { 0,                            XF86XK_MonBrightnessDown,  spawn, {.v = brightnessdncmd}},
   { 0,                            XF86XK_Display,            spawn, {.v = displaycmd}},
-  { 0,                            XF86XK_Sleep,              spawn, {.v = suspendcmd}},
-  { 0,                            XF86XK_Standby,            spawn, {.v = suspendcmd}},
-  { 0,                            XF86XK_PowerOff,           spawn, {.v = hibernatecmd}},
-  { 0,                            XF86XK_Hibernate,          spawn, {.v = hibernatecmd}},
+  { 0,                            XF86XK_Sleep,              spawn, {.v = sleepcmd}},
+  { 0,                            XF86XK_Standby,            spawn, {.v = sleepcmd}},
+  { 0,                            XF86XK_PowerOff,           spawn, {.v = suspendcmd}},
+  { 0,                            XF86XK_Hibernate,          spawn, {.v = suspendcmd}},
 };
 
 /* button definitions */

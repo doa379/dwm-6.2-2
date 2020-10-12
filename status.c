@@ -12,11 +12,8 @@
 #include <sys/statvfs.h>
 #include <sys/ioctl.h>
 #include <linux/wireless.h>
-//#include <linux/input.h>
-//include <fcntl.h>
 #include <unistd.h>
 #include <curl/curl.h>
-#include <X11/Xlib.h>
 #include "status.h"
 
 #define LENGTH(X)		(sizeof X / sizeof X[0])
@@ -32,9 +29,6 @@
 #define SYS_ACSTATE "/sys/class/power_supply/AC/online"
 #define SND_CMD "fuser -v /dev/snd/* 2>&1 /dev/zero"
 #define DEVICES "/proc/bus/input/devices"
-//#define MAX_NFD 4
-//#define DEVICE_TYPES "Keyboard", "keyboard", "Lid", "Sleep", "Power"
-//#define DEVICE_TYPES "Lid",
 #define kB			1024
 #define mB			(kB * kB)
 #define gB			(kB * mB)
@@ -116,14 +110,14 @@ typedef struct
   unsigned NBAT, total_perc;
   battery_t BATTERY[MAX_BATTERIES];
 } batteries_t;
-/*
+
 typedef struct
 {
-  unsigned NFD, count;
-  char DEV[MAX_NFD][32];
-  struct pollfd PFD[MAX_NFD];
+  char *node;
+  const char *type;
+  bool found;
 } device_t;
-*/
+
 cpu_t cpu;
 mem_t mem;
 diskstats_t DISKSTATS[LENGTH(BLKDEV)];
@@ -133,9 +127,7 @@ ip_t ip;
 bool ac_state;
 batteries_t batteries;
 char SND[16], TIME[32];
-//device_t device;
 static unsigned char interval = UPDATE_INTV;
-//const char *SEARCH_TERMS[] = { DEVICE_TYPES };
 
 static void read_file(void *data, void (*cb)(), const char FILENAME[])
 {
@@ -199,52 +191,6 @@ static void tail(char LINE[], size_t size, const char FILENAME[], unsigned char 
     LINE[strlen(LINE) - 1] = '\0';
   fclose(fp);
 }
-/*
-static void parse_dev_cb(void *data, char LINE[])
-{
-  device_t *device = data;
-  if (!strncmp("N:", LINE, 2))
-  {
-    for (unsigned i = 0; i < LENGTH(SEARCH_TERMS); i++)
-      if (strstr(LINE, SEARCH_TERMS[i]))
-        device->NFD++;
-  }
-
-  else if (!strncmp("H:", LINE, 2) && device->count < device->NFD)
-  {
-    char *p;
-    if ((p = strstr(LINE, "event")))
-    {
-      char EV[7];
-      sscanf(p, "%s", EV);
-      sprintf(device->DEV[device->NFD - 1], "/dev/input/%s", EV);
-      device->count++;
-    }
-  }
-}
-
-static void deinit_device(device_t *device)
-{
-  for (unsigned i = 0; i < device->NFD; i++)
-    close(device->PFD[i].fd);
-}
-
-static void init_device(device_t *device)
-{
-  read_file(device, parse_dev_cb, DEVICES);
-  for (unsigned i = 0; i < device->NFD; i++)
-  {
-    device->PFD[i].fd = open(device->DEV[i], O_RDONLY);
-    device->PFD[i].events = POLLIN;
-  }
-}
-*/
-typedef struct
-{
-  char *node;
-  const char *type;
-  bool found;
-} device_t;
 
 static void parse_dev_cb(void *data, char LINE[])
 {
@@ -591,7 +537,6 @@ static void init_ip(ip_t *ip)
 
 void deinit_status(void)
 {
-  //deinit_device(&device);
   deinit_ip(&ip);
 }
 void init_status(void)
@@ -602,13 +547,6 @@ void init_status(void)
   init_net(NET, WLAN);
   init_ip(&ip);
   init_batteries(&batteries);
-  /*
-  init_device(&device);
-  struct input_event evt;
-  time_t init, now;
-  float time_diff;
-  unsigned poll_interval;
-  */
 }
 
 static void print(char RESULT[], const char *format, ...)
@@ -621,7 +559,7 @@ static void print(char RESULT[], const char *format, ...)
   strcat(RESULT, STRING);
 }
 
-int status(Display *dpy, char STRING[])
+int status(char STRING[])
 {
   read_file(&cpu, cpu_cb, CPU);
   read_file(&cpu, cpu_cb, STAT);
@@ -680,7 +618,6 @@ int status(Display *dpy, char STRING[])
   if ((float) batteries.total_perc / batteries.NBAT < SUSPEND_THRESHOLD_PERC)
   {
     sprintf(STRING, "Battery < %d%%", SUSPEND_THRESHOLD_PERC);
-    XStoreName(dpy, DefaultRootWindow(dpy), STRING);
     return -1;
   }
 
@@ -688,51 +625,6 @@ int status(Display *dpy, char STRING[])
   print(STRING, "%s%s%s", DELIM, SNDSYM, SND);
   date(TIME, sizeof TIME);
   print(STRING, "%s%s", DELIM, TIME);
-  XStoreName(dpy, DefaultRootWindow(dpy), STRING);
   interval = ac_state ? UPDATE_INTV_ON_BATTERY : UPDATE_INTV;
   return interval;
-  /*
-  poll_interval = interval;
-  time(&init);
-poll_resume:
-  poll(device.PFD, device.NFD, poll_interval * 1000);
-  for (unsigned i = 0; i < device.NFD; i++)
-    if (device.PFD[i].revents & POLLIN && 
-        read(device.PFD[i].fd, &evt, sizeof evt) > 0)
-    {
-      if (!evt.value);
-      else if (evt.type == EV_SW && evt.code == SW_LID)
-        system(LOCKALL_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_BRIGHTNESSUP)
-        system(BRIGHTNESSUP_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_BRIGHTNESSDOWN)
-        system(BRIGHTNESSDOWN_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_SWITCHVIDEOMODE)
-        system(SWITCHDISPLAY_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_MUTE)
-        system(VOLUMEMUTE_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_VOLUMEUP)
-        system(VOLUMEUP_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_VOLUMEDOWN)
-        system(VOLUMEDOWN_CMD);
-      else if (evt.type == EV_KEY && evt.code == KEY_SLEEP)
-      {
-        system(SLEEP_CMD);
-        system(LOCKALL_CMD);
-      }
-      else if (evt.type == EV_KEY && evt.code == KEY_POWER)
-      {
-        system(SUSPEND_CMD);
-        system(LOCKALL_CMD);
-      }
-
-      time(&now);
-      time_diff = difftime(now, init);
-      if (time_diff < interval)
-      {
-        poll_interval = interval - time_diff;
-        goto poll_resume;
-      }
-    }
-    */
 }
