@@ -42,6 +42,9 @@
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 #include <sys/poll.h>
+#include <time.h>
+#include <fcntl.h>
+#include <linux/input.h>
 
 #include "drw.h"
 #include "util.h"
@@ -281,8 +284,9 @@ static void setlayout0(const Arg *);
 static void tcl(Monitor *);
 unsigned tag_idx(unsigned);
 void init_status(void);
-unsigned status(Display *);
 void deinit_status(void);
+unsigned status(Display *, char []);
+void input_event_node(char [], const char []);
 
   /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -1621,21 +1625,51 @@ run(void)
     if (handler[ev.type])
       handler[ev.type](&ev);
   */
-  struct pollfd pfd;
-  pfd.fd = ConnectionNumber(dpy);
-  pfd.events = POLLIN;
-  unsigned interval;
+  unsigned NFD = 2;
+  struct pollfd PFD[NFD];
+  /* Display/User event fd */
+  PFD[0].fd = ConnectionNumber(dpy);
+  PFD[0].events = POLLIN;
+  /* Input event fd */
+  char DEV[32] = { 0 };
+  input_event_node(DEV, "Lid");
+  PFD[1].fd = open(DEV, O_RDONLY);
+  PFD[1].events = POLLIN;
+  struct input_event evt;
+  unsigned interval, poll_interval;
+  float time_diff;
+  time_t init, now;
   while (running)
   {
-    interval = status(dpy);
-    poll(&pfd, 1, interval * 1000);
+    interval = status(dpy, stext);
+    poll_interval = interval;
+    time(&init);
+    poll_resume:
+    poll(PFD, NFD, poll_interval * 1000);
     while (XPending(dpy))
     {
       XNextEvent(dpy, &ev);
       if (handler[ev.type])
         handler[ev.type](&ev); /* call handler */
     }
+    
+    if (PFD[1].revents & POLLIN && 
+        read(PFD[1].fd, &evt, sizeof evt) > 0 && evt.value)
+    {
+      Arg arg = { .v = lockscmd };
+      spawn(&arg);
+    }
+    
+    time(&now);
+    time_diff = difftime(now, init);
+    if (time_diff < interval)
+    {
+      poll_interval = interval - time_diff;
+      goto poll_resume;
+    }
   }
+
+  close(PFD[1].fd);
 }
 
 void

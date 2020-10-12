@@ -11,13 +11,11 @@
 #include <dirent.h>
 #include <sys/statvfs.h>
 #include <sys/ioctl.h>
-#include <sys/poll.h>
 #include <linux/wireless.h>
-#include <linux/input.h>
-#include <fcntl.h>
+//#include <linux/input.h>
+//include <fcntl.h>
 #include <unistd.h>
 #include <curl/curl.h>
-#include <time.h>
 #include <X11/Xlib.h>
 #include "status.h"
 
@@ -34,8 +32,9 @@
 #define SYS_ACSTATE "/sys/class/power_supply/AC/online"
 #define SND_CMD "fuser -v /dev/snd/* 2>&1 /dev/zero"
 #define DEVICES "/proc/bus/input/devices"
-#define MAX_NFD 4
-#define DEVICE_TYPES "Keyboard", "keyboard", "Lid", "Sleep", "Power"
+//#define MAX_NFD 4
+//#define DEVICE_TYPES "Keyboard", "keyboard", "Lid", "Sleep", "Power"
+//#define DEVICE_TYPES "Lid",
 #define kB			1024
 #define mB			(kB * kB)
 #define gB			(kB * mB)
@@ -117,14 +116,14 @@ typedef struct
   unsigned NBAT, total_perc;
   battery_t BATTERY[MAX_BATTERIES];
 } batteries_t;
-
+/*
 typedef struct
 {
   unsigned NFD, count;
   char DEV[MAX_NFD][32];
   struct pollfd PFD[MAX_NFD];
 } device_t;
-
+*/
 cpu_t cpu;
 mem_t mem;
 diskstats_t DISKSTATS[LENGTH(BLKDEV)];
@@ -134,9 +133,9 @@ ip_t ip;
 bool ac_state;
 batteries_t batteries;
 char SND[16], TIME[32];
-device_t device;
+//device_t device;
 static unsigned char interval = UPDATE_INTV;
-const char *SEARCH_TERMS[] = { DEVICE_TYPES };
+//const char *SEARCH_TERMS[] = { DEVICE_TYPES };
 
 static void read_file(void *data, void (*cb)(), const char FILENAME[])
 {
@@ -200,7 +199,7 @@ static void tail(char LINE[], size_t size, const char FILENAME[], unsigned char 
     LINE[strlen(LINE) - 1] = '\0';
   fclose(fp);
 }
-
+/*
 static void parse_dev_cb(void *data, char LINE[])
 {
   device_t *device = data;
@@ -238,6 +237,39 @@ static void init_device(device_t *device)
     device->PFD[i].fd = open(device->DEV[i], O_RDONLY);
     device->PFD[i].events = POLLIN;
   }
+}
+*/
+typedef struct
+{
+  char *node;
+  const char *type;
+  bool found;
+} device_t;
+
+static void parse_dev_cb(void *data, char LINE[])
+{
+  device_t *device = data;
+  if (!strncmp("N:", LINE, 2) && strstr(LINE, device->type))
+    device->found = 1;
+
+  else if (!strncmp("H:", LINE, 2) && device->found)
+  {
+    char *p;
+    if ((p = strstr(LINE, "event")))
+    {
+      char EV[8];
+      sscanf(p, "%s", EV);
+      sprintf(device->node, "/dev/input/%s", EV);
+    }
+
+    device->found = 0;
+  }
+}
+
+void input_event_node(char NODE[], const char TYPE[])
+{
+  device_t device = { NODE, TYPE, 0 };
+  read_file(&device, parse_dev_cb, DEVICES);
 }
 
 static void date(char TIME[], size_t size)
@@ -542,7 +574,7 @@ static void init_curl(ip_t *ip)
   curl_easy_setopt(ip->handle, CURLOPT_URL, IPURL[0]);
   curl_easy_setopt(ip->handle, CURLOPT_WRITEFUNCTION, writefunc);
   curl_easy_setopt(ip->handle, CURLOPT_WRITEDATA, ip);
-  curl_easy_setopt(ip->handle, CURLOPT_TIMEOUT_MS, 150L);
+  curl_easy_setopt(ip->handle, CURLOPT_TIMEOUT_MS, 250L);
 }
 
 static void deinit_ip(ip_t *ip)
@@ -557,6 +589,11 @@ static void init_ip(ip_t *ip)
   tail(ip->PREV, sizeof ip->PREV, IPLIST, 1);
 }
 
+void deinit_status(void)
+{
+  //deinit_device(&device);
+  deinit_ip(&ip);
+}
 void init_status(void)
 {
   setlocale(LC_ALL, "");
@@ -565,8 +602,8 @@ void init_status(void)
   init_net(NET, WLAN);
   init_ip(&ip);
   init_batteries(&batteries);
-  init_device(&device);
   /*
+  init_device(&device);
   struct input_event evt;
   time_t init, now;
   float time_diff;
@@ -584,13 +621,12 @@ static void print(char RESULT[], const char *format, ...)
   strcat(RESULT, STRING);
 }
 
-unsigned status(Display *dpy)
+int status(Display *dpy, char STRING[])
 {
-  char STRING[256] = { 0 };
   read_file(&cpu, cpu_cb, CPU);
   read_file(&cpu, cpu_cb, STAT);
   read_file(&mem, mem_cb, MEM);
-  print(STRING, "%.0f%% %.0fMHz", cpu.perc, cpu.mhz);
+  sprintf(STRING, "%.0f%% %.0fMHz", cpu.perc, cpu.mhz);
   print(STRING, "%s%.0f%% (%s)", DELIM, mem.perc, format_units(mem.swap));
 
   for (unsigned i = 0; i < LENGTH(BLKDEV); i++)
@@ -643,8 +679,9 @@ unsigned status(Display *dpy)
 
   if ((float) batteries.total_perc / batteries.NBAT < SUSPEND_THRESHOLD_PERC)
   {
-    system(SUSPEND_CMD);
-    system(LOCKALL_CMD);
+    sprintf(STRING, "Battery < %d%%", SUSPEND_THRESHOLD_PERC);
+    XStoreName(dpy, DefaultRootWindow(dpy), STRING);
+    return -1;
   }
 
   snd(SND);
@@ -698,10 +735,4 @@ poll_resume:
       }
     }
     */
-}
-
-void deinit_status(void)
-{
-  deinit_device(&device);
-  deinit_ip(&ip);
 }
