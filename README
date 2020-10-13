@@ -1,12 +1,12 @@
 This is dwm-6.2 with the following new features:
 
 ~ Integrated colored statusbar
-- XF86 hotkeys support
-- ACPI control (Linux only)
-- Systray patch
-- Semi-automatic layouts (ie, floating default, tiling/monocle on demand)
-- Triple layout
-- Keyboard layout selection
+~ XF86 hotkeys support
+~ ACPI control (Linux only)
+~ Systray patch
+~ Semi-automatic layouts (ie, floating default, tiling/monocle on demand)
+~ Triple layout
+~ Keyboard layout selection
 
 
 
