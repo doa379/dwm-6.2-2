@@ -1,26 +1,12 @@
-This is dwm-6.2 with systray patch, plus a number of additional enhancements to
-improve usability. This fork anticipates being close to vanilla-dwm as much as
-possible. The only elaborate patch is the systray patch which is taken from the
-suckless website.
+This is dwm-6.2 with the following new features:
 
-New Features
-------------
-
-* The floating layout is used across the entire program. Tiling and
-maximization are now a manual action through the usual 
-Mod+t/m keymaps. Tiling features are performed semi-automatically before
-reverting to floating mode. This allows each tag to be tiled in a floating client
-configuration. Hence each tag preserves its own configuration without
-having to store the state of each tag independently.
-
-* Colored statusbar. The color schemes used in dwm are hard coded in config.h
-and as such dwm dynamically allocates color schemes at the outset. You can
-now pass a delimiter ("|" say) in the root string and dwm will cycle through
-the array of color schemes and assign a scheme to the string contained within
-the delimiters. The order of the coloring will follow the ordering of the
-colors defined in the array of color schemes. The overheads for this feature
-have been kept to a bare minimum. It is a simple patch that introduces a
-single function which tokenizes the root string.
+~ Integrated colored statusbar
+- XF86 hotkeys support
+- ACPI control (Linux only)
+- Systray patch
+- Semi-automatic layouts (ie, floating default, tiling/monocle on demand)
+- Triple layout
+- Keyboard layout selection
 
 
 
@@ -57,15 +43,6 @@ the DISPLAY environment variable is set correctly, e.g.:
     DISPLAY=foo.bar:1 exec dwm
 
 (This will start dwm on display :1 of the host foo.bar.)
-
-In order to display status info in the bar, you can do something
-like this in your .xinitrc:
-
-    while xsetroot -name "`date` `uptime | sed 's/.*,//'`"
-    do
-    	sleep 1
-    done &
-    exec dwm
 
 
 Configuration
