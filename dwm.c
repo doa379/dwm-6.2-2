@@ -819,7 +819,7 @@ dirtomon(int dir)
   return m;
 }
 
-static unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, const char *delim)
+unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, const char *delim)
 {
   unsigned n = 0;
   char *token = strtok(string, delim);
@@ -839,20 +839,17 @@ static unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *str
   return n;
 }
 
-void drw_stext_colors(Monitor *m, Drw *drw, int *sw, int stw, unsigned bh)
+void drw_stext_colors(Monitor *m, Drw *drw, int sw, unsigned bh)
 {
-  char stext_dup[sizeof stext], section[LENGTH(colors)][64];
+  char section[LENGTH(colors)][64], stext_dup[sizeof stext];
   strcpy(stext_dup, stext);
   unsigned N = tokenize_string(64, section, stext_dup, STEXTDELIM),
     pad = lrpad / 2, offset = 0;
-  if (N > LENGTH(colors))
-    N = LENGTH(colors);
-  
-  *sw = TEXTW(stext) + stw;
+  N = N > LENGTH(colors) ? LENGTH(colors) : N;
   for (unsigned i = 0; i < N; i++)
   {
     drw_setscheme(drw, scheme[i + 2]);
-    drw_text(drw, m->ww - *sw + offset, 0, *sw, bh, pad, section[i], 0);
+    drw_text(drw, m->ww - sw + offset, 0, sw, bh, pad, section[i], 0);
     offset += TEXTW(section[i]) - pad;
   }
 }
@@ -868,9 +865,10 @@ drawbar(Monitor *m)
 
   if(showsystray && m == systraytomon(m))
     stw = getsystraywidth();
-  /* draw status first so it can be overdrawn by tags later */
+
   if (m == selmon) { /* status is only drawn on selected monitor */
-    drw_stext_colors(m, drw, &sw, stw, bh);
+    sw = TEXTW(stext) + stw;
+    drw_stext_colors(m, drw, sw, bh);
   }
 
   resizebarwin(m);
@@ -879,6 +877,7 @@ drawbar(Monitor *m)
     if (c->isurgent)
       urg |= c->tags;
   }
+  /* draw status first so it can be overdrawn by tags later */
   x = 0;
   for (i = 0; i < LENGTH(tags); i++) 
     if (occ & 1 << i || m ->tagset[m->seltags] & 1 << i) 
