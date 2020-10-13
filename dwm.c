@@ -1635,6 +1635,7 @@ run(void)
   unsigned poll_interval = 1;
   float time_diff;
   time_t init, now;
+  init_status();
   while (running)
   {
     interval = status(stext);
@@ -1673,6 +1674,7 @@ run(void)
     }
   }
 
+  deinit_status();
   close(PFD[1].fd);
 }
 
@@ -2628,7 +2630,6 @@ main(int argc, char *argv[])
     die("dwm: cannot open display");
   checkotherwm();
   setup();
-  init_status();
 #ifdef __OpenBSD__
   if (pledge("stdio rpath proc exec", NULL) == -1)
     die("pledge");
@@ -2636,7 +2637,6 @@ main(int argc, char *argv[])
   scan();
   run();
   cleanup();
-  deinit_status();
   XCloseDisplay(dpy);
   return EXIT_SUCCESS;
 }
