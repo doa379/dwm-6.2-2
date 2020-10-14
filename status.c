@@ -124,7 +124,7 @@ static diskstats_t DISKSTATS[LENGTH(BLKDEV)];
 static net_t NET[LENGTH(NETIF)];
 static wireless_t WLAN[LENGTH(NETIF)];
 static ip_t ip;
-bool ac_state;
+static bool ac_state;
 static batteries_t batteries;
 static char SND[16], TIME[32];
 static unsigned char interval = UPDATE_INTV;
@@ -462,7 +462,6 @@ static void mem_cb(void *data, const char LINE[])
 static void cpu_cb(void *data, const char LINE[])
 {
   cpu_t *cpu = data, tmp;
-
   if (sscanf(LINE, "cpu%*[^0-9] %lu %lu %lu %lu %lu %lu %lu",
         &tmp.user,
         &tmp.nice,

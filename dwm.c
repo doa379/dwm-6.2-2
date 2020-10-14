@@ -1674,7 +1674,8 @@ run(void)
   }
 
   deinit_status();
-  close(PFD[1].fd);
+  if (PFD[1].fd > -1)
+    close(PFD[1].fd);
 }
 
 void
