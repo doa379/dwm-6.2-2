@@ -327,6 +327,8 @@ static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
 static unsigned char selkb;
+static char section[LENGTH(colors)][64];
+static char stext_dup[sizeof stext];
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -819,7 +821,7 @@ dirtomon(int dir)
   return m;
 }
 
-unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, const char *delim)
+static unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, const char *delim)
 {
   unsigned n = 0;
   char *token = strtok(string, delim);
@@ -839,11 +841,10 @@ unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *string, co
   return n;
 }
 
-void drw_stext_colors(Monitor *m, Drw *drw, int sw, unsigned bh)
+static void drw_stext_colors(Monitor *m, Drw *drw, int sw, unsigned bh)
 {
-  char section[LENGTH(colors)][64], stext_dup[sizeof stext];
   strcpy(stext_dup, stext);
-  unsigned N = tokenize_string(64, section, stext_dup, STEXTDELIM),
+  unsigned N = tokenize_string(sizeof section[0], section, stext_dup, STEXTDELIM),
     pad = lrpad / 2, offset = 0;
   N = N > LENGTH(colors) ? LENGTH(colors) : N;
   for (unsigned i = 0; i < N; i++)
