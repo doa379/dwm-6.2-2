@@ -27,7 +27,7 @@
 #define ACPI_BAT "/proc/acpi/battery"
 #define SYS_PS "/sys/class/power_supply"
 #define SYS_ACSTATE "/sys/class/power_supply/AC/online"
-#define SND_CMD "fuser -v -n file /dev/snd/* 2>&1 /dev/zero"
+#define SND_CMD "lsof /dev/snd/timer"
 #define DEVICES "/proc/bus/input/devices"
 #define kB			1024
 #define mB			(kB * kB)
@@ -232,7 +232,7 @@ static void snd(char SND[])
 
   char STRING[128];
   if (fgets(STRING, 128, fp) && fgets(STRING, 128, fp))
-    sscanf(STRING, "%*[^ ] %*[^ ] %*[^ ] %*[^ ] %s", SND);
+    sscanf(STRING, "%s", SND);
   else SND[0] = '\0';
   pclose(fp);
 }
