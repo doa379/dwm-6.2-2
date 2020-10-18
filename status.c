@@ -27,7 +27,7 @@
 #define ACPI_BAT "/proc/acpi/battery"
 #define SYS_PS "/sys/class/power_supply"
 #define SYS_ACSTATE "/sys/class/power_supply/AC/online"
-#define SND_CMD "fuser -v /dev/snd/* 2>&1 /dev/zero"
+#define SND_CMD "fuser -v -n file /dev/snd/* 2>&1 /dev/zero"
 #define DEVICES "/proc/bus/input/devices"
 #define kB			1024
 #define mB			(kB * kB)
@@ -538,6 +538,7 @@ void deinit_status(void)
 {
   deinit_ip(&ip);
 }
+
 void init_status(void)
 {
   setlocale(LC_ALL, "");
