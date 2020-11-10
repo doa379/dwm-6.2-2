@@ -1651,11 +1651,11 @@ run(void)
     time(&init);
     poll_resume:
     poll(PFD, NFD, poll_interval * 1000);
-    while (XPending(dpy))
+    while (XPending(dpy) > 0)
     {
       XNextEvent(dpy, &ev);
       if (handler[ev.type])
-        handler[ev.type](&ev); /* call handler */
+        handler[ev.type](&ev);
     }
     
     if (PFD[1].revents & POLLIN && 

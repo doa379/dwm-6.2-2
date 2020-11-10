@@ -82,10 +82,10 @@ int status(char STRING[])
  }
 
   public_ip(&ip);
-  if (!strcmp(ip.PREV, ip.BUFFER) || !strlen(ip.PREV))
-    print(STRING, "%s%s", DELIM, ip.BUFFER);
+  if (!strcmp(ip.PREV, ip.CURR) || !strlen(ip.PREV))
+    print(STRING, "%s%s", DELIM, ip.CURR);
   else
-    print(STRING, "%s%s%s%s", DELIM, ip.PREV, RIGHT_ARROW, ip.BUFFER);
+    print(STRING, "%s%s%s%s", DELIM, ip.PREV, RIGHT_ARROW, ip.CURR);
 #ifdef PROC_ACPI
   read_file(&ac_state, ac_cb, ACPI_ACSTATE);
 #else
