@@ -17,7 +17,7 @@ static ip_t ip;
 static bool ac_state;
 static batteries_t batteries;
 static char SND[16], TIME[32];
-static unsigned long totalenergy_uj;
+static powercaps_t powercaps;
 static unsigned char interval = UPDATE_INTV;
 
 static void print(char RESULT[], const char *format, ...)
@@ -32,6 +32,8 @@ static void print(char RESULT[], const char *format, ...)
 
 void deinit_status(void)
 {
+  deinit_power(&powercaps);
+  deinit_batteries(&batteries);
   deinit_ip(&ip);
 }
 
@@ -43,11 +45,12 @@ void init_status(void)
   init_net(NET, WLAN);
   init_ip(&ip);
   init_batteries(&batteries);
+  init_power(&powercaps);
 }
 
 int status(char STRING[])
 {
-  sprintf(STRING, "%s%dW", PWRSYM, power(&totalenergy_uj, interval));
+  sprintf(STRING, "%s%dW", PWRSYM, power(&powercaps, interval));
   read_file(&cpu, cpu_cb, CPU);
   read_file(&cpu, cpu_cb, STAT);
   read_file(&mem, mem_cb, MEM);
@@ -92,17 +95,17 @@ int status(char STRING[])
   read_file(&ac_state, ac_cb, SYS_ACSTATE);
 #endif
   batteries.total_perc = 0;
-  for (unsigned i = 0; i < batteries.NBAT; i++)
+  for (unsigned i = 0; i < batteries.size; i++)
   {
-    read_file(&batteries.BATTERY[i], battery_state_cb, batteries.BATTERY[i].STATEFILE);
+    read_file(&batteries.battery[i], battery_state_cb, batteries.battery[i].STATEFILE);
     print(STRING, "%s%s %d%% %c", DELIM, 
-        batteries.BATTERY[i].BAT, 
-        batteries.BATTERY[i].perc, 
-        batteries.BATTERY[i].state);
-    batteries.total_perc += batteries.BATTERY[i].perc;
+        batteries.battery[i].BAT, 
+        batteries.battery[i].perc, 
+        batteries.battery[i].state);
+    batteries.total_perc += batteries.battery[i].perc;
   }
 
-  if ((float) batteries.total_perc / batteries.NBAT < SUSPEND_THRESHOLD_PERC)
+  if ((float) batteries.total_perc / batteries.size < SUSPEND_THRESHOLD_PERC)
   {
     sprintf(STRING, "Battery < %d%%", SUSPEND_THRESHOLD_PERC);
     return -1;
