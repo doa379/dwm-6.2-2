@@ -16,7 +16,8 @@ static wireless_t WLAN[LENGTH(NETIF)];
 static ip_t ip;
 static bool ac_state;
 static batteries_t batteries;
-static char SND[16], TIME[32];
+static asound_cards_t asound_cards;
+static char TIME[32];
 static powercaps_t powercaps;
 static unsigned char interval = UPDATE_INTV;
 
@@ -33,6 +34,7 @@ static void print(char RESULT[], const char *format, ...)
 void deinit_status(void)
 {
   deinit_power(&powercaps);
+  deinit_snd(&asound_cards);
   deinit_batteries(&batteries);
   deinit_ip(&ip);
 }
@@ -45,6 +47,7 @@ void init_status(void)
   init_net(NET, WLAN);
   init_ip(&ip);
   init_batteries(&batteries);
+  init_snd(&asound_cards);
   init_power(&powercaps);
 }
 
@@ -111,8 +114,16 @@ int status(char STRING[])
     return -1;
   }
 
-  snd(SND);
-  print(STRING, "%s%s%s", DELIM, SNDSYM, SND);
+  for (unsigned i = 0; i < asound_cards.size; i++)
+  {
+    asound_cards.card[i].P_SND[0] = '\0';
+    asound_cards.card[i].C_SND[0] = '\0';
+    read_file(asound_cards.card[i].P_SND, snd_cb, asound_cards.card[i].P_STATEFILE);
+    read_file(asound_cards.card[i].C_SND, snd_cb, asound_cards.card[i].C_STATEFILE);
+    print(STRING, "%s%s%s%s%s",
+        DELIM, SNDSYM, asound_cards.card[i].P_SND, MICSYM, asound_cards.card[i].C_SND);
+  }
+
   date(TIME, sizeof TIME);
   print(STRING, "%s%s", DELIM, TIME);
   interval = ac_state ? UPDATE_INTV_ON_BATTERY : UPDATE_INTV;
