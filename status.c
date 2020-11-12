@@ -69,7 +69,7 @@ int status(char STRING[])
     print(STRING, "%s%s%s%s%s",
         DELIM, SNDSYM, asound_card_p(i), MICSYM, asound_card_c(i));
   }
-  print(STRING, "%s%s\n", DELIM, date());
+  print(STRING, "%s%s", DELIM, date());
   interval = ac() ? UPDATE_INTV_ON_BATTERY : UPDATE_INTV;
   return interval;
 }
