@@ -11,7 +11,6 @@ static unsigned battery_total_perc;
 int status(char STRING[])
 {
   sprintf(STRING, "%s%dW", PWRSYM, power(interval));
-  print(STRING, "%s%dW", PWRSYM, power(interval));
   print(STRING, "%s%.0lf%% %.0fMHz", DELIM, cpu_perc(), cpu_mhz());
   print(STRING, "%s%.0f%% (%s)", DELIM, mem_perc(), format_units(mem_swap()));
 
