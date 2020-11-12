@@ -1,71 +1,26 @@
-#include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
-#include <locale.h>
 #include "status.h"
 
 static const char *BLKDEV[] = { BLKDEVS };
 static const char *DIRECTORY[] = { DIRECTORIES };
 static const char *NETIF[] = { NETIFS };
-
-static cpu_t cpu;
-static mem_t mem;
-static diskstats_t DISKSTATS[LENGTH(BLKDEV)];
-static net_t NET[LENGTH(NETIF)];
-static wireless_t WLAN[LENGTH(NETIF)];
-static ip_t ip;
-static bool ac_state;
-static batteries_t batteries;
-static asound_cards_t asound_cards;
-static char TIME[32];
-static powercaps_t powercaps;
 static unsigned char interval = UPDATE_INTV;
-
-static void print(char RESULT[], const char *format, ...)
-{
-  va_list args = { 0 };
-  char STRING[64];
-  va_start(args, format);
-  vsnprintf(STRING, 64, format, args);
-  va_end(args);
-  strcat(RESULT, STRING);
-}
-
-void deinit_status(void)
-{
-  deinit_power(&powercaps);
-  deinit_snd(&asound_cards);
-  deinit_batteries(&batteries);
-  deinit_ip(&ip);
-}
-
-void init_status(void)
-{
-  setlocale(LC_ALL, "");
-  setbuf(stdout, NULL);
-  init_diskstats(DISKSTATS);
-  init_net(NET, WLAN);
-  init_ip(&ip);
-  init_batteries(&batteries);
-  init_snd(&asound_cards);
-  init_power(&powercaps);
-}
+static unsigned battery_total_perc;
 
 int status(char STRING[])
 {
-  sprintf(STRING, "%s%dW", PWRSYM, power(&powercaps, interval));
-  read_file(&cpu, cpu_cb, CPU);
-  read_file(&cpu, cpu_cb, STAT);
-  read_file(&mem, mem_cb, MEM);
-  print(STRING, "%s%.0f%% %.0fMHz", DELIM, cpu.perc, cpu.mhz);
-  print(STRING, "%s%.0f%% (%s)", DELIM, mem.perc, format_units(mem.swap));
+  sprintf(STRING, "%s%dW", PWRSYM, power(interval));
+  print(STRING, "%s%dW", PWRSYM, power(interval));
+  print(STRING, "%s%.0lf%% %.0fMHz", DELIM, cpu_perc(), cpu_mhz());
+  print(STRING, "%s%.0f%% (%s)", DELIM, mem_perc(), format_units(mem_swap()));
 
   for (unsigned i = 0; i < LENGTH(BLKDEV); i++)
   {
-    read_file(&DISKSTATS[i], blkdev_cb, DISKSTAT);
     print(STRING, "%s%s ", DELIM, BLKDEV[i]);
-    print(STRING, "%s%s", UP, format_units(read_kbps(&DISKSTATS[i], interval)));
-    print(STRING, "%s%s", DOWN, format_units(write_kbps(&DISKSTATS[i], interval)));
+    refresh_diskstats(i);
+    print(STRING, "%s%s", UP, format_units(read_kbps(i, interval)));
+    print(STRING, "%s%s", DOWN, format_units(write_kbps(i, interval)));
   }
 
   print(STRING, "%s", DELIM);
@@ -74,58 +29,48 @@ int status(char STRING[])
 
   for (unsigned i = 0; i < LENGTH(NETIF); i++)
   {
-    read_file(&NET[i], net_cb, NET_ADAPTERS);
-    read_file(&WLAN[i], wireless_cb, WIRELESS);
-    print(STRING, "%s%s ", DELIM, NET[i].netif);
-    ssid(&WLAN[i].ssid);
-    if (strlen(WLAN[i].ssid.SSID))
-      print(STRING, "%s %d%% ", WLAN[i].ssid.SSID, wireless_link(&WLAN[i]));
+    print(STRING, "%s%s ", DELIM, NETIF[i]);
+    if (ssid(i))
+      print(STRING, "%s %d%% ", ssid_string(i), wireless_link(i));
 
-    print(STRING, "%s%s", UP, format_units(up_kbps(&NET[i], interval)));
-    print(STRING, "(%s)", format_units(NET[i].TXbytes / kB));
-    print(STRING, "%s%s", DOWN, format_units(down_kbps(&NET[i], interval)));
-    print(STRING, "(%s)", format_units(NET[i].RXbytes / kB));
- }
-
-  public_ip(&ip);
-  if (!strcmp(ip.PREV, ip.CURR) || !strlen(ip.PREV))
-    print(STRING, "%s%s", DELIM, ip.CURR);
-  else
-    print(STRING, "%s%s%s%s", DELIM, ip.PREV, RIGHT_ARROW, ip.CURR);
-#ifdef PROC_ACPI
-  read_file(&ac_state, ac_cb, ACPI_ACSTATE);
-#else
-  read_file(&ac_state, ac_cb, SYS_ACSTATE);
-#endif
-  batteries.total_perc = 0;
-  for (unsigned i = 0; i < batteries.size; i++)
-  {
-    read_file(&batteries.battery[i], battery_state_cb, batteries.battery[i].STATEFILE);
-    print(STRING, "%s%s %d%% %c", DELIM, 
-        batteries.battery[i].BAT, 
-        batteries.battery[i].perc, 
-        batteries.battery[i].state);
-    batteries.total_perc += batteries.battery[i].perc;
+    refresh_netadapter(i);
+    print(STRING, "%s%s", UP, format_units(tx_kbps(i, interval)));
+    print(STRING, "(%s)", format_units(tx_total_kb(i)));
+    print(STRING, "%s%s", DOWN, format_units(rx_kbps(i, interval)));
+    print(STRING, "(%s)", format_units(rx_total_kb(i)));
   }
 
-  if ((float) batteries.total_perc / batteries.size < SUSPEND_THRESHOLD_PERC)
+  refresh_publicip();
+  if (!strcmp(prev_ip(), curr_ip()) || !strlen(prev_ip()))
+    print(STRING, "%s%s", DELIM, curr_ip());
+  else
+    print(STRING, "%s%s%s%s", DELIM, prev_ip(), RIGHT_ARROW, curr_ip());
+
+  refresh_ps();
+  battery_total_perc = 0;
+  for (unsigned i = 0; i < batteries_size(); i++)
+  {
+    refresh_battery(i);
+    print(STRING, "%s%s %d%% %c", DELIM,
+        battery_string(i),
+        battery_perc(i),
+        battery_state(i));
+    battery_total_perc += battery_perc(i);
+  }
+  
+  if ((float) battery_total_perc / batteries_size() < SUSPEND_THRESHOLD_PERC)
   {
     sprintf(STRING, "Battery < %d%%", SUSPEND_THRESHOLD_PERC);
     return -1;
   }
 
-  for (unsigned i = 0; i < asound_cards.size; i++)
+  for (unsigned i = 0; i < asound_cards_size(); i++)
   {
-    asound_cards.card[i].P_SND[0] = '\0';
-    asound_cards.card[i].C_SND[0] = '\0';
-    read_file(asound_cards.card[i].P_SND, snd_cb, asound_cards.card[i].P_STATEFILE);
-    read_file(asound_cards.card[i].C_SND, snd_cb, asound_cards.card[i].C_STATEFILE);
+    refresh_asound_card(i);
     print(STRING, "%s%s%s%s%s",
-        DELIM, SNDSYM, asound_cards.card[i].P_SND, MICSYM, asound_cards.card[i].C_SND);
+        DELIM, SNDSYM, asound_card_p(i), MICSYM, asound_card_c(i));
   }
-
-  date(TIME, sizeof TIME);
-  print(STRING, "%s%s", DELIM, TIME);
-  interval = ac_state ? UPDATE_INTV_ON_BATTERY : UPDATE_INTV;
+  print(STRING, "%s%s\n", DELIM, date());
+  interval = ac() ? UPDATE_INTV_ON_BATTERY : UPDATE_INTV;
   return interval;
 }
