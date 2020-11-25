@@ -841,20 +841,6 @@ static unsigned tokenize_string(unsigned TOKLEN, char array[][TOKLEN], char *str
   return n;
 }
 
-static void drw_stext_colors(Monitor *m, Drw *drw, int sw, unsigned bh)
-{
-  strcpy(stext_dup, stext);
-  unsigned N = tokenize_string(sizeof section[0], section, stext_dup, STEXTDELIM),
-    pad = lrpad / 2, offset = 0;
-  N = N > LENGTH(colors) ? LENGTH(colors) : N;
-  for (unsigned i = 0; i < N; i++)
-  {
-    drw_setscheme(drw, scheme[i + 2]);
-    drw_text(drw, m->ww - sw + offset, 0, sw, bh, pad, section[i], 0);
-    offset += TEXTW(section[i]) - pad;
-  }
-}
-
 void
 drawbar(Monitor *m)
 {
@@ -868,8 +854,17 @@ drawbar(Monitor *m)
     stw = getsystraywidth();
 
   if (m == selmon) { /* status is only drawn on selected monitor */
-    sw = TEXTW(stext) + stw;
-    drw_stext_colors(m, drw, sw, bh);
+    sw = TEXTW(stext) - lrpad / 2 + stw;
+    strcpy(stext_dup, stext);
+    unsigned N = tokenize_string(sizeof section[0], section, stext_dup, STEXTDELIM),
+             offset = 0;
+    N = N > LENGTH(colors) ? LENGTH(colors) : N;
+    for (unsigned i = 0; i < N; i++)
+    {
+      drw_setscheme(drw, scheme[i + 2]);
+      drw_text(drw, m->ww - sw + offset, 0, sw, bh, lrpad / 2, section[i], 0);
+      offset += TEXTW(section[i]) - lrpad / 2;
+    }
   }
 
   resizebarwin(m);
@@ -911,7 +906,7 @@ drawbar(Monitor *m)
       drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
       drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
       if (m->sel->isfloating)
-	drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
+	      drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
     } else {
       drw_setscheme(drw, scheme[SchemeNorm]);
       drw_rect(drw, x, 0, w, bh, 1, 1);

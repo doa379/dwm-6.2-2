@@ -40,7 +40,7 @@ int status(char STRING[])
   }
 
   refresh_publicip();
-  if (!strcmp(prev_ip(), curr_ip()) || !strlen(prev_ip()))
+  if (!strcmp(prev_ip(), curr_ip()))
     print(STRING, "%s%s", DELIM, curr_ip());
   else
     print(STRING, "%s%s%s%s", DELIM, prev_ip(), RIGHT_ARROW, curr_ip());
