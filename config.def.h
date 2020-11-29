@@ -71,7 +71,6 @@ static const Rule rules[] = {
   /* class      instance    title       tags mask     isfloating   monitor */
   { "Gimp",                   NULL,       NULL,       0,              True,        -1 },
   { "tabbed",                 NULL,       NULL,       1 << 5,         False,       -1 },
-  { "libreoffice",            NULL,       NULL,       1 << 12,        False,       -1 },
 };
 
 /* layout(s) */
@@ -125,17 +124,16 @@ static Key keys[] = {
   { MODKEY,                       XK_h,      set_mfact,      {.f = -0.02} },
   { MODKEY,                       XK_l,      set_mfact,      {.f = +0.02} },
   { MODKEY,                       XK_Return, zoomfloat,      {0} },
-  { MODKEY,                       XK_z,      zoomcycle,      {0} },
+  { MODKEY,                       XK_z,      cyclemaster,    {0} },
   { MODKEY,                       XK_Escape, view,           {0} },
-  { MODKEY,                       XK_Tab,    view_nonempty,  {.i = +1} },
-  { MODKEY|ShiftMask,             XK_Tab,    view_nonempty,  {.i = -1} },
+  { MODKEY,                       XK_Tab,    viewnonempty,   {.i = +1} },
+  { MODKEY|ShiftMask,             XK_Tab,    viewnonempty,   {.i = -1} },
   { MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-  { MODKEY,                       XK_f,      setlayout,      {.v = &layouts[0]} },
+  { MODKEY,                       XK_f,      floating,       {0} },
   { MODKEY,                       XK_t,      setlayout_float,{.v = &layouts[1]} },
   { MODKEY,                       XK_u,      setlayout_float,{.v = &layouts[2]} },
   { MODKEY,                       XK_m,      setlayout_float,{.v = &layouts[3]} },
-  { MODKEY,                       XK_space,  setlayout0,     {0} },
-  { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+  { MODKEY,                       XK_space,  cyclelayouts,   {0} },
   { MODKEY,                       XK_BackSpace,      view,   {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_BackSpace,      tag,    {.ui = ~0 } },
   { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
