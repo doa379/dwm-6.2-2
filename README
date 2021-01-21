@@ -1,9 +1,9 @@
 This is dwm-6.2 with the following new features:
 
 ~ Integrated colored statusbar
-~ ~~Integrated status stats~~ (run as separate process using sudo)
-~ ~~XF86 hotkeys support~~ (use acpid)
-~ ~~ACPI control (Linux only)~~ (use acpid)
+~ <s>Integrated status stats</s> (run as separate process using sudo)
+~ <s>XF86 hotkeys support</s> (use acpid)
+~ <s>ACPI control (Linux only)</s> (use acpid)
 ~ Systray patch
 ~ Semi-automatic layouts (ie, floating default, tiling/monocle on demand)
 ~ Triple layout
