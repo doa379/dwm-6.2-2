@@ -1,9 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
-#include "XF86keysym.h"
-#define BH_PADDING -1
-#define STEXTDELIM "|"
-
+static const char BH_PADDING = -1;
+static const char *STEXTDELIM = "|";
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
@@ -71,6 +69,7 @@ static const Rule rules[] = {
   /* class      instance    title       tags mask     isfloating   monitor */
   { "Gimp",                   NULL,       NULL,       0,              True,        -1 },
   { "tabbed",                 NULL,       NULL,       1 << 5,         False,       -1 },
+  { "libreoffice",            NULL,       NULL,       1 << 12,        False,       -1 },
 };
 
 /* layout(s) */
@@ -103,14 +102,6 @@ static const char *termcmd1[] = { "urxvt1", NULL };
 static const char *termcmd2[] = { "urxvt2", NULL };
 static const char *scrotcmd[] = { "scrot", "/tmp/%Y-%m-%d-%H-%M-%s_$wx$h_scrot.png", "-q", "100", NULL };
 static const char *lockscmd[] = { "lockall", NULL };
-static const char *brightnessupcmd[] = { "sudo", "/usr/local/bin/backlight", "+", NULL };
-static const char *brightnessdncmd[] = { "sudo", "/usr/local/bin/backlight", "-", NULL };
-static const char *audioupcmd[] = { "vol", "+", NULL };
-static const char *audiodncmd[] = { "vol", "-", NULL };
-static const char *audiomutecmd[] = { "vol", "0", NULL };
-static const char *displaycmd[] = { "switchdisplay", NULL };
-static const char *sleepcmd[] = { "sudo", "/usr/local/bin/zzz", "M", NULL };
-static const char *suspendcmd[] = { "sudo", "/usr/local/bin/zzz", "D", NULL };
 
 static Key keys[] = {
   /* modifier                     key        function        argument */
@@ -123,7 +114,7 @@ static Key keys[] = {
   { MODKEY,                       XK_d,      inc_nmaster,    {.i = -1 } },
   { MODKEY,                       XK_h,      set_mfact,      {.f = -0.02} },
   { MODKEY,                       XK_l,      set_mfact,      {.f = +0.02} },
-  { MODKEY,                       XK_Return, zoomfloat,      {0} },
+  { MODKEY,                       XK_Return, zoom_float,      {0} },
   { MODKEY,                       XK_z,      cyclemaster,    {0} },
   { MODKEY,                       XK_Escape, view,           {0} },
   { MODKEY,                       XK_Tab,    viewnonempty,   {.i = +1} },
@@ -163,16 +154,6 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_s,                      spawn, {.v = scrotcmd}},
   { MODKEY|ShiftMask,             XK_r,                      spawn, {.v = termcmd1}},
   { MODKEY|ShiftMask,             XK_t,                      spawn, {.v = termcmd2}},
-  { 0,                            XF86XK_AudioRaiseVolume,   spawn, {.v = audioupcmd}},
-  { 0,                            XF86XK_AudioLowerVolume,   spawn, {.v = audiodncmd}},
-  { 0,                            XF86XK_AudioMute,          spawn, {.v = audiomutecmd}},
-  { 0,                            XF86XK_MonBrightnessUp,    spawn, {.v = brightnessupcmd}},
-  { 0,                            XF86XK_MonBrightnessDown,  spawn, {.v = brightnessdncmd}},
-  { 0,                            XF86XK_Display,            spawn, {.v = displaycmd}},
-  { 0,                            XF86XK_Sleep,              spawn, {.v = sleepcmd}},
-  { 0,                            XF86XK_Standby,            spawn, {.v = sleepcmd}},
-  { 0,                            XF86XK_PowerOff,           spawn, {.v = suspendcmd}},
-  { 0,                            XF86XK_Hibernate,          spawn, {.v = suspendcmd}},
 };
 
 /* button definitions */

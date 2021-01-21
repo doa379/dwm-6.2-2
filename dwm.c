@@ -279,7 +279,7 @@ static void set_mfact(const Arg *);
 static void settile(void);
 static void setfloat(void);
 static void cyclemaster(const Arg *); 
-static void zoomfloat(const Arg *);
+static void zoom_float(const Arg *);
 static void viewnonempty(const Arg *);
 static void cyclelayouts(const Arg *);
 static void tcl(Monitor *);
@@ -1633,63 +1633,9 @@ run(void)
   XEvent ev;
   /* main event loop */
   XSync(dpy, False);
-  unsigned NFD = 2;
-  struct pollfd PFD[NFD];
-  /* Display/User event fd */
-  PFD[0].fd = ConnectionNumber(dpy);
-  PFD[0].events = POLLIN;
-  /* Input event fd */
-  char DEV[32] = { 0 };
-  input_event_node(DEV, "Lid");
-  PFD[1].fd = open(DEV, O_RDONLY);
-  PFD[1].events = POLLIN;
-  struct input_event evt;
-  int interval;
-  unsigned poll_interval = 1;
-  float time_diff;
-  time_t init, now;
-  init_status();
-  while (running)
-  {
-    interval = status(stext);
-    XStoreName(dpy, DefaultRootWindow(dpy), stext);
-    if (interval < 0)
-    {
-      Arg arg = { .v = suspendcmd };
-      spawn(&arg);
-    }
-    else
-      poll_interval = interval;
-
-    time(&init);
-    poll_resume:
-    poll(PFD, NFD, poll_interval * 1000);
-    while (XPending(dpy) > 0)
-    {
-      XNextEvent(dpy, &ev);
-      if (handler[ev.type])
-        handler[ev.type](&ev);
-    }
-    
-    if (PFD[1].revents & POLLIN && 
-        read(PFD[1].fd, &evt, sizeof evt) > 0 && evt.value)
-    {
-      Arg arg = { .v = lockscmd };
-      spawn(&arg);
-    }
-    
-    time(&now);
-    time_diff = difftime(now, init);
-    if (time_diff < interval)
-    {
-      poll_interval = interval - time_diff;
-      goto poll_resume;
-    }
-  }
-
-  deinit_status();
-  if (PFD[1].fd > -1)
-    close(PFD[1].fd);
+  while (running && !XNextEvent(dpy, &ev))
+    if (handler[ev.type])
+      handler[ev.type](&ev); /* call handler */  
 }
 
 void
@@ -2737,7 +2683,7 @@ static void cyclemaster(const Arg *arg)
   }
 }
 
-static void zoomfloat(const Arg *arg)
+static void zoom_float(const Arg *arg)
 {
   settile();
   zoom(arg);
