@@ -41,10 +41,6 @@
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
-#include <sys/poll.h>
-#include <time.h>
-#include <fcntl.h>
-#include <linux/input.h>
 
 #include "drw.h"
 #include "util.h"
@@ -283,12 +279,9 @@ static void zoom_float(const Arg *);
 static void viewnonempty(const Arg *);
 static void cyclelayouts(const Arg *);
 static void tcl(Monitor *);
-unsigned tag_idx(unsigned);
+static unsigned tag_idx(unsigned);
 static void floating(const Arg *);
-void init_status(void);
-void deinit_status(void);
-int status(char []);
-void input_event_node(char [], const char []);
+static void configureborder(Client *);
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -899,7 +892,7 @@ drawbar(Monitor *m)
       n++;
   if (n > 1)
     {
-      sprintf(m->nclients, "[%d]", n);
+      sprintf(m->nclients, "(%d)", n);
       x = drw_text(drw, x, 0, w + 8, bh, lrpad / 2, m->nclients, 0);
     }
 
@@ -1573,6 +1566,7 @@ resizemouse(const Arg *arg)
           c->sfy = c->y;
           c->sfw = nw;
           c->sfh = nh;
+          configureborder(c);
         }
         break;
     }
@@ -1625,6 +1619,7 @@ restack(Monitor *m)
   }
   XSync(dpy, False);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
+  configureborder(m->stack);
 }
 
 void
@@ -1901,6 +1896,7 @@ showhide(Client *c)
     if ((!c->mon->lt->arrange || c->isfloating) && !c->isfullscreen)
       resize(c, c->x, c->y, c->w, c->h, 0);
     showhide(c->snext);
+    configureborder(c);
   } else {
     /* hide clients bottom up */
     showhide(c->snext);
@@ -2142,7 +2138,7 @@ updatebarpos(Monitor *m)
 }
 
 void
-updateclientlist()
+updateclientlist(void)
 {
   Client *c;
   Monitor *m;
@@ -2776,7 +2772,7 @@ static void tcl(Monitor *m)
   }
 }
 
-unsigned tag_idx(unsigned tagset)
+static unsigned tag_idx(unsigned tagset)
 {
   unsigned j = 0;
   for (unsigned i = 0; !(tagset & 1 << i); i++)
@@ -2792,4 +2788,25 @@ static void floating(const Arg *arg)
       resize(c, c->sfx, c->sfy, c->sfw, c->sfh, 0);
 
   arrange(selmon);
+}
+
+static void configureborder(Client *c)
+{
+  XWindowChanges wc;
+  wc.x = c->x;
+  wc.y = c->y;
+  wc.width = c->w;
+  wc.height = c->h;
+  
+	if (nexttiled(c->mon->clients) == c && !nexttiled(c->next)) {
+    c->bw = wc.border_width = 0;
+		c->w = wc.width += c->bw * 2;
+		c->h = wc.height += c->bw * 2;
+  }
+
+  else {
+    c->bw = wc.border_width = borderpx;
+  }
+
+  XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);  
 }
